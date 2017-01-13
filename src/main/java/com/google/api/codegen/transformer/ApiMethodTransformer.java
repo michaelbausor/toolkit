@@ -489,6 +489,8 @@ public class ApiMethodTransformer {
     methodViewBuilder.callableName(context.getNamer().getCallableName(context.getMethod()));
     methodViewBuilder.modifyMethodName(namer.getModifyMethodName(context.getMethod()));
     methodViewBuilder.grpcStreamingType(context.getMethodConfig().getGrpcStreamingType());
+    methodViewBuilder.visibility(
+        namer.getVisiblityKeyword(context.getMethodConfig().getVisibility()));
 
     ServiceMessages messages = new ServiceMessages();
     if (context.getMethodConfig().isLongRunningOperation()) {
@@ -800,19 +802,18 @@ public class ApiMethodTransformer {
         removePageTokenFieldConfig(context, context.getMethodConfig().getOptionalFieldConfigs());
     apiMethod.optionalRequestObjectParamsNoPageToken(
         generateRequestObjectParams(context, filteredFieldConfigs));
-    
+
     GrpcStreamingType grpcStreamingType = context.getMethodConfig().getGrpcStreamingType();
     apiMethod.grpcStreamingType(grpcStreamingType);
     apiMethod.isSingularRequestMethod(
         grpcStreamingType.equals(GrpcStreamingType.NonStreaming)
             || grpcStreamingType.equals(GrpcStreamingType.ServerStreaming));
-    
+
     apiMethod.longRunningView(
         context.getMethodConfig().isLongRunningOperation()
             ? lroTransformer.generateDetailView(context)
             : null);
 
-    
     return apiMethod.build();
   }
 
