@@ -1,0 +1,477 @@
+============== file: src/Example/Library/V1/LibraryServiceJsonClient.php ==============
+<?php
+/*
+ * Copyright 2017, Google Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+namespace Google\Example\Library\V1;
+
+use Google\Cloud\Core\RequestWrapper;
+use Google\Cloud\Core\RestTrait;
+use Google\Cloud\Core\UriTrait;
+use Google\Example\Library\V1\AddCommentsRequest;
+use Google\Example\Library\V1\Book;
+use Google\Example\Library\V1\BookFromAnywhere;
+use Google\Example\Library\V1\BookFromArchive;
+use Google\Example\Library\V1\Comment;
+use Google\Example\Library\V1\CreateBookRequest;
+use Google\Example\Library\V1\CreateShelfRequest;
+use Google\Example\Library\V1\DeleteBookRequest;
+use Google\Example\Library\V1\DeleteShelfRequest;
+use Google\Example\Library\V1\DiscussBookRequest;
+use Google\Example\Library\V1\FindRelatedBooksRequest;
+use Google\Example\Library\V1\FindRelatedBooksResponse;
+use Google\Example\Library\V1\GetBookFromAbsolutelyAnywhereRequest;
+use Google\Example\Library\V1\GetBookFromAnywhereRequest;
+use Google\Example\Library\V1\GetBookFromArchiveRequest;
+use Google\Example\Library\V1\GetBookRequest;
+use Google\Example\Library\V1\GetShelfRequest;
+use Google\Example\Library\V1\ListBooksRequest;
+use Google\Example\Library\V1\ListBooksResponse;
+use Google\Example\Library\V1\ListShelvesRequest;
+use Google\Example\Library\V1\ListShelvesResponse;
+use Google\Example\Library\V1\ListStringsRequest;
+use Google\Example\Library\V1\ListStringsResponse;
+use Google\Example\Library\V1\MergeShelvesRequest;
+use Google\Example\Library\V1\MoveBookRequest;
+use Google\Example\Library\V1\PublishSeriesRequest;
+use Google\Example\Library\V1\PublishSeriesResponse;
+use Google\Example\Library\V1\Shelf;
+use Google\Example\Library\V1\StreamBooksRequest;
+use Google\Example\Library\V1\StreamShelvesRequest;
+use Google\Example\Library\V1\StreamShelvesResponse;
+use Google\Example\Library\V1\TestOptionalRequiredFlatteningParamsRequest;
+use Google\Example\Library\V1\TestOptionalRequiredFlatteningParamsResponse;
+use Google\Example\Library\V1\UpdateBookIndexRequest;
+use Google\Example\Library\V1\UpdateBookRequest;
+use Google\GAX\PathTemplate;
+use Google\Longrunning\Operation;
+use Google\Protobuf\GPBEmpty;
+use Google\Tagger\V1\AddLabelRequest;
+use Google\Tagger\V1\AddLabelResponse;
+use Google\Tagger\V1\AddTagRequest;
+use Google\Tagger\V1\AddTagResponse;
+use GuzzleHttp\Psr7\Request;
+
+class LibraryServiceJsonClient
+{
+    use UriTrait;
+    use RestTrait;
+    private $hostname;
+
+    /**
+     * @aram string $hostname hostname
+     * @aram array $opts channel options
+     */
+    public function __construct($hostname, $opts)
+    {
+        $this->hostname = $hostname;
+        $this->setRequestWrapper(new RequestWrapper());
+    }
+
+    public function CreateShelf(CreateShelfRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/bookShelves',
+                'body' => 'shelf',
+            ],
+            ['Shelf', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function GetShelf(GetShelfRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/{name=bookShelves/*}',
+            ],
+            ['Shelf', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function ListShelves(ListShelvesRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/bookShelves',
+            ],
+            ['ListShelvesResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function DeleteShelf(DeleteShelfRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'delete' => '/v1/{name=bookShelves/*}',
+            ],
+            ['GPBEmpty', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function MergeShelves(MergeShelvesRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/{name=bookShelves/*}:merge',
+                'body' => '*',
+            ],
+            ['Shelf', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function CreateBook(CreateBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/{name=bookShelves/*}/books',
+                'body' => 'book',
+            ],
+            ['Book', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function PublishSeries(PublishSeriesRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1:publish',
+                'body' => '*',
+            ],
+            ['PublishSeriesResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function GetBook(GetBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/{name=bookShelves/*/books/*}',
+            ],
+            ['Book', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function ListBooks(ListBooksRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/{name=bookShelves/*}/books',
+            ],
+            ['ListBooksResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function DeleteBook(DeleteBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'delete' => '/v1/{name=bookShelves/*/books/*}',
+            ],
+            ['GPBEmpty', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function UpdateBook(UpdateBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'put' => '/v1/{name=bookShelves/*/books/*}',
+                'body' => 'book',
+            ],
+            ['Book', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function MoveBook(MoveBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/{name=bookShelves/*/books/*}:move',
+                'body' => '*',
+            ],
+            ['Book', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function ListStrings(ListStringsRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/strings',
+            ],
+            ['ListStringsResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function AddComments(AddCommentsRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/{name=bookShelves/*}/comments',
+                'body' => '*',
+            ],
+            ['GPBEmpty', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function GetBookFromArchive(GetBookFromArchiveRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/{name=archives/*/books/*}',
+            ],
+            ['BookFromArchive', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function GetBookFromAnywhere(GetBookFromAnywhereRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/{name=archives/*/books/**}',
+            ],
+            ['BookFromAnywhere', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function GetBookFromAbsolutelyAnywhere(GetBookFromAbsolutelyAnywhereRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/{name=archives/*/books/*}',
+            ],
+            ['BookFromAnywhere', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function UpdateBookIndex(UpdateBookIndexRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/{name=bookShelves/*/books/*}/index',
+                'body' => '*',
+            ],
+            ['GPBEmpty', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function StreamShelves(StreamShelvesRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+            ],
+            ['StreamShelvesResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function StreamBooks(StreamBooksRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+            ],
+            ['Book', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function DiscussBook(DiscussBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+            ],
+            ['Comment', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function MonologAboutBook(DiscussBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+            ],
+            ['Comment', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function FindRelatedBooks(FindRelatedBooksRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/bookShelves',
+            ],
+            ['FindRelatedBooksResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function AddTag(AddTagRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/{resource=bookShelves/*/books/*}:addTag',
+                'body' => '*',
+            ],
+            ['AddTagResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function AddLabel(AddLabelRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+            ],
+            ['AddLabelResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function GetBigBook(GetBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/{name=bookShelves/*/books/*}:big',
+            ],
+            ['Operation', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function GetBigNothing(GetBookRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'get' => '/v1/{name=bookShelves/*/books/*}:bignothing',
+            ],
+            ['Operation', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function TestOptionalRequiredFlatteningParams(TestOptionalRequiredFlatteningParamsRequest $argument, $metadata = [], $options = [])
+    {
+        return $this->send(
+            $argument,
+            [
+                'post' => '/v1/testofp',
+                'body' => '*',
+            ],
+            ['TestOptionalRequiredFlatteningParamsResponse', 'serializeFromJsonString'],
+            $options
+        );
+    }
+
+    public function send(\Google\Protobuf\Internal\Message $argument, array $httpOptions,
+        array $deserialize, array $options = [])
+    {
+        $requestOptions = $this->pluckArray([
+          'restOptions',
+          'retries',
+          'requestTimeout'
+        ], $options);
+        $httpOptions = $this->pluckArray([
+          'get',
+          'post',
+          'put',
+          'delete'
+        ], $httpOptions);
+        // determine URI and method from proto options
+        $uri = reset($httpOptions);
+        $method = key($httpOptions);
+        // Render the full URI from the proto path
+        $template = new PathTemplate($uri);
+        $uri = $template->render(['name' => $argument->getName()]);
+        $absoluteUri = sprintf('https://%s/%s', $this->hostname, $uri);
+        // create the request object
+        $request = new Request(
+          $method,
+          $absoluteUri,
+          ['Content-Type' => 'application/json'],
+          $argument->serializeToJsonString()
+        );
+        // make the request
+        $message = $this->requestWrapper->send(
+          $request,
+          $requestOptions
+        )->getBody();
+        // deserialize the object
+        if (is_array($deserialize)) {
+          list($className, $deserializeFunc) = $deserialize;
+          $obj = new $className();
+          if (method_exists($obj, $deserializeFunc)) {
+            $obj->$deserializeFunc($value);
+          }
+          // Wrapped in a fake call object because the *ServiceClient classes
+          // are currently coupled to gRPC.
+          return new FakeCall($obj);
+        }
+        throw new \Exception('Unable to deserialize object');
+    }
+    public function close()
+    {
+        // nothing to do!
+    }
+}

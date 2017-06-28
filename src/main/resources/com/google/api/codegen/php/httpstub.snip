@@ -1,0 +1,110 @@
+@extends "php/common.snip"
+@extends "php/method_sample.snip"
+
+@snippet generate(xapiClass)
+    {@renderFileHeader(xapiClass.fileHeader, {@""})}
+
+    class {@xapiClass.name}
+    {
+        use UriTrait;
+        use RestTrait;
+        {@members(xapiClass)}
+        {@constructor(xapiClass)}
+        {@apiMethods(xapiClass)}
+        {@functions(xapiClass)}
+        {@cleanupSection(xapiClass)}
+    }
+@end
+
+@private members(xapiClass)
+    private $hostname;
+@end
+
+@private constructor(xapiClass)
+
+    /**
+     * @param string $hostname hostname
+     * @param array $opts channel options
+     */
+    public function __construct($hostname, $opts)
+    {
+        $this->hostname = $hostname;
+        $this->setRequestWrapper(new RequestWrapper());
+    }
+    {@""}
+@end
+
+@private apiMethods(xapiClass)
+    @join apiMethod : xapiClass.apiMethods
+        public function {@apiMethod.name}({@apiMethod.requestTypeName} $argument, $metadata = [], $options = [])
+        {
+            return $this->send(
+                $argument,
+                [
+                    @join httpOption : apiMethod.httpOptions
+                        '{@httpOption.key}' => '{@httpOption.value}',
+                    @end
+                ],
+                ['{@apiMethod.responseTypeName}', 'serializeFromJsonString'],
+                $options
+            );
+        }
+        {@""}
+    @end
+@end
+
+@private functions(xapiClass)
+    public function send(\Google\Protobuf\Internal\Message $argument, array $httpOptions,
+        array $deserialize, array $options = [])
+    {
+        $requestOptions = $this->pluckArray([
+          'restOptions',
+          'retries',
+          'requestTimeout'
+        ], $options);
+        $httpOptions = $this->pluckArray([
+          'get',
+          'post',
+          'put',
+          'delete'
+        ], $httpOptions);
+        // determine URI and method from proto options
+        $uri = reset($httpOptions);
+        $method = key($httpOptions);
+        // Render the full URI from the proto path
+        $template = new PathTemplate($uri);
+        $uri = $template->render(['name' => $argument->getName()]);
+        $absoluteUri = sprintf('https://%s/%s', $this->hostname, $uri);
+        // create the request object
+        $request = new Request(
+          $method,
+          $absoluteUri,
+          ['Content-Type' => 'application/json'],
+          $argument->serializeToJsonString()
+        );
+        // make the request
+        $message = $this->requestWrapper->send(
+          $request,
+          $requestOptions
+        )->getBody();
+        // deserialize the object
+        if (is_array($deserialize)) {
+          list($className, $deserializeFunc) = $deserialize;
+          $obj = new $className();
+          if (method_exists($obj, $deserializeFunc)) {
+            $obj->$deserializeFunc($value);
+          }
+          // Wrapped in a fake call object because the *ServiceClient classes
+          // are currently coupled to gRPC.
+          return new FakeCall($obj);
+        }
+        throw new \Exception('Unable to deserialize object');
+    }
+@end
+
+@private cleanupSection(xapiClass)
+    public function close()
+    {
+        // nothing to do!
+    }
+@end

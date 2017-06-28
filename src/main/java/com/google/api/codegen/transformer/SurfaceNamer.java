@@ -360,6 +360,11 @@ public class SurfaceNamer extends NameFormatterDelegator {
     }
   }
 
+  /** The name of the surface method for the generated HTTP stub. */
+  public String getHttpStubMethodName(Method method) {
+    return method.getSimpleName();
+  }
+
   /**
    * The name of the iterate method of the PagedListResponse type for a field, returning the
    * resource type iterate method if available
@@ -650,6 +655,11 @@ public class SurfaceNamer extends NameFormatterDelegator {
   /** The name of the grpc stub for a particular proto interface; not used in most languages. */
   public String getApiGrpcStubClassName(GapicInterfaceConfig interfaceConfig) {
     return publicClassName(Name.upperCamel("Grpc", interfaceConfig.getRawName(), "Stub"));
+  }
+
+  /** The name of the class that implements a particular proto interface. */
+  public String getHttpStubClassName(InterfaceConfig interfaceConfig) {
+    return publicClassName(Name.upperCamel(getInterfaceName(interfaceConfig), "JsonClient"));
   }
 
   /** The name of the class that contains paged list response wrappers. */

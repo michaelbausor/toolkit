@@ -39,6 +39,7 @@ import com.google.api.codegen.transformer.nodejs.NodeJSGapicSurfaceTransformer;
 import com.google.api.codegen.transformer.nodejs.NodeJSPackageMetadataTransformer;
 import com.google.api.codegen.transformer.php.PhpGapicSurfaceTestTransformer;
 import com.google.api.codegen.transformer.php.PhpGapicSurfaceTransformer;
+import com.google.api.codegen.transformer.php.PhpPackageHttpStubTransformer;
 import com.google.api.codegen.transformer.php.PhpPackageMetadataTransformer;
 import com.google.api.codegen.transformer.py.PythonGapicSurfaceDocTransformer;
 import com.google.api.codegen.transformer.py.PythonGapicSurfaceTestTransformer;
@@ -319,9 +320,18 @@ public class MainGapicProviderFactory
                 .setModelToViewTransformer(new PhpPackageMetadataTransformer(packageConfig))
                 .build();
 
+        GapicProvider<? extends Object> httpStubProvider =
+            ViewModelGapicProvider.newBuilder()
+                .setModel(model)
+                .setProductConfig(productConfig)
+                .setSnippetSetRunner(new CommonSnippetSetRunner(new CommonRenderingUtil()))
+                .setModelToViewTransformer(new PhpPackageHttpStubTransformer(phpPathMapper))
+                .build();
+
         providers.add(provider);
         providers.add(clientConfigProvider);
         providers.add(metadataProvider);
+        providers.add(httpStubProvider);
       }
 
       if (generatorConfig.enableTestGenerator()) {
