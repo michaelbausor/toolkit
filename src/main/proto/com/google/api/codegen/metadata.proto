@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package com.google.api.codegen;
+
+option java_multiple_files = true;
+option java_outer_classname = "OrganisationConfigProto";
+option java_package = "com.google.api.codegen";
+
+message Organisation {
+
+  OrganisationConfig common = 1;
+  map<string, OrganisationConfig> langs = 2;
+}
+
+message OrganisationConfig {
+  string name = 1;
+  string display_name = 2;
+  string org_url = 5;
+  string github_org_url = 6;
+  string github_repo_url = 7;
+  string documentation_url = 8;
+  map<string, string> custom = 15;
+}
+
+/*
+  @Nullable
+  public abstract String versionNamespace();
+
+  public abstract String author();
+
+  public abstract String email();
+
+public abstract String homepage();
+
+  public abstract String licenseName();
+
+
+// Python-specific configuration
+  @Nullable
+  public abstract List<String> namespacePackages();
+
+  @Nullable
+public abstract List<String> apiModules();
+
+@Nullable
+  public abstract List<String> typeModules();
+
+  @Nullable
+  public abstract List<String> clientModules();
+
+  @Nullable
+  public abstract ReadmeMetadataView readmeMetadata();
+
+  @Nullable
+  public abstract String sampleAppName();
+
+  @Nullable
+  public abstract String sampleAppPackage();
+
+  @Nullable
+  public abstract String smokeTestProjectVariable();
+
+public static Builder newBuilder() {
+return new AutoValue_PackageMetadataView.Builder().hasSmokeTests(false);
+  }
+  */
