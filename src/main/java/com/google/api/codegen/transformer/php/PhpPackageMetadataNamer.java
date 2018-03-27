@@ -17,16 +17,36 @@ package com.google.api.codegen.transformer.php;
 import com.google.api.codegen.transformer.PackageMetadataNamer;
 import com.google.api.codegen.util.Name;
 import com.google.api.codegen.util.php.PhpPackageUtil;
+import java.util.Arrays;
+import java.util.List;
 
 /** PHPPackageMetadataNamer provides PHP specific names for metadata views. */
 public class PhpPackageMetadataNamer extends PackageMetadataNamer {
   private Name serviceName;
-  private String domainLayerLocation;
+  private String metadataIdenfifier;
 
   public PhpPackageMetadataNamer(String packageName, String domainLayerLocation) {
     // Get the service name from the package name by removing the version suffix (if any).
     this.serviceName = getApiNameFromPackageName(packageName);
-    this.domainLayerLocation = domainLayerLocation;
+
+
+    if (domainLayerLocation != null) {
+      // If a domainLayerLocation is provided, set the metadataIdentifier to be
+      // "domainLayerLocation/serviceName".
+      this.metadataIdenfifier = domainLayerLocation + "/" + serviceName.toSeparatedString("");
+    } else {
+      // If no domainLayerLocation is provided, take the first component of the packageName and use
+      // that as the domain.
+      List<String> packageComponents = Arrays.asList(PhpPackageUtil.splitPackageName(packageName));
+      String domain = packageComponents.get(0);
+      if (packageComponents.size() == 1) {
+        this.metadataIdenfifier = domain + "/" + domain;
+      } else {
+        String packageNameWithoutFirstComponent = PhpPackageUtil.buildPackageName(packageComponents.subList(1, packageComponents.size() - 1));
+        Name serviceNameWithoutFirstComponent = getApiNameFromPackageName(packageNameWithoutFirstComponent);
+        his.metadataIdenfifier = domain + "/" + serviceNameWithoutFirstComponent.toSeparatedString("");
+      }
+    }
   }
 
   @Override
@@ -37,23 +57,15 @@ public class PhpPackageMetadataNamer extends PackageMetadataNamer {
   @Override
   public String getMetadataIdentifier() {
     String serviceNameLower = serviceName.toSeparatedString("");
-    if (domainLayerLocation != null && !domainLayerLocation.isEmpty()) {
-      return domainLayerLocation + "/" + serviceNameLower;
+    if (domain != null && !domain.isEmpty()) {
+      return domain + "/" + serviceNameLower;
     } else {
       return serviceNameLower + "/" + serviceNameLower;
     }
   }
 
   public static Name getApiNameFromPackageName(String packageName) {
-    String[] names = PhpPackageUtil.splitPackageName(packageName);
-    if (names.length < 2) {
-      return Name.upperCamel(packageName);
-    } else {
-      String serviceName = names[names.length - 1];
-      if (PhpPackageUtil.isPackageVersion(serviceName)) {
-        serviceName = names[names.length - 2];
-      }
-      return Name.upperCamel(serviceName);
-    }
+    return Name.upperCamel(
+        PhpPackageUtil.splitPackageName(PhpPackageUtil.getPackageNameBeforeVersion(packageName)));
   }
 }

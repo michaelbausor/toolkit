@@ -247,7 +247,7 @@ steps:
 0.1.0
 ============== file: composer.json ==============
 {
-  "name": "example/example",
+  "name": "googleexample/googleexample",
   "version": "0.1.0",
   "author": "Google LLC",
   "url": "https://github.com/googleapis/googleapis",
@@ -310,7 +310,7 @@ steps:
     <ini name="memory_limit" value="2048M"/>
   </php>
 </phpunit>
-============== file: src/Example/V1/Gapic/NoTemplatesApiServiceGapicClient.php ==============
+============== file: src/V1/Gapic/NoTemplatesApiServiceGapicClient.php ==============
 <?php
 /*
  * Copyright 2018 Google LLC
@@ -538,7 +538,7 @@ class NoTemplatesApiServiceGapicClient
     }
 
 }
-============== file: src/Example/V1/NoTemplatesApiServiceClient.php ==============
+============== file: src/V1/NoTemplatesApiServiceClient.php ==============
 <?php
 /*
  * Copyright 2018 Google LLC
@@ -581,7 +581,7 @@ class NoTemplatesApiServiceClient extends NoTemplatesApiServiceGapicClient
     // This class is intentionally empty, and is intended to hold manual
     // additions to the generated {@see NoTemplatesApiServiceClientImpl} class.
 }
-============== file: src/Example/V1/resources/no_templates_api_service_client_config.json ==============
+============== file: src/V1/resources/no_templates_api_service_client_config.json ==============
 {
   "interfaces": {
     "google.cloud.example.v1.NoTemplatesAPIService": {
@@ -596,7 +596,7 @@ class NoTemplatesApiServiceClient extends NoTemplatesApiServiceGapicClient
   }
 }
 
-============== file: src/Example/V1/resources/no_templates_api_service_descriptor_config.php ==============
+============== file: src/V1/resources/no_templates_api_service_descriptor_config.php ==============
 <?php
 
 return [
@@ -606,7 +606,7 @@ return [
     ]
 ];
 
-============== file: src/Example/V1/resources/no_templates_api_service_rest_client_config.php ==============
+============== file: src/V1/resources/no_templates_api_service_rest_client_config.php ==============
 <?php
 
 return [
@@ -621,11 +621,7 @@ return [
     ]
 ];
 
-============== file: tests/system/bootstrap.php ==============
-<?php
-
-require __DIR__ . '/../../vendor/autoload.php';
-============== file: tests/unit/Example/V1/NoTemplatesApiServiceClientTest.php ==============
+============== file: tests/Unit/V1/NoTemplatesApiServiceClientTest.php ==============
 <?php
 /*
  * Copyright 2018 Google LLC
@@ -648,7 +644,7 @@ require __DIR__ . '/../../vendor/autoload.php';
  * This file was automatically generated - do not edit!
  */
 
-namespace Google\Tests\Unit\Example\V1;
+namespace Google\Example\Tests\Unit\V1;
 
 use Google\Example\V1\NoTemplatesApiServiceClient;
 use Google\ApiCore\ApiException;
@@ -667,7 +663,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
- * @group example
+ * @group google_example
  * @group grpc
  */
 class NoTemplatesApiServiceClientTest extends GeneratedTest
@@ -749,6 +745,10 @@ class NoTemplatesApiServiceClientTest extends GeneratedTest
     }
 
 }
+============== file: tests/system/bootstrap.php ==============
+<?php
+
+require __DIR__ . '/../../vendor/autoload.php';
 ============== file: tests/unit/bootstrap.php ==============
 <?php
 

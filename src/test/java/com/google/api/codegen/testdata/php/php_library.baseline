@@ -247,7 +247,7 @@ steps:
 0.1.0
 ============== file: composer.json ==============
 {
-  "name": "library/library",
+  "name": "googleexamplelibrary/googleexamplelibrary",
   "version": "0.1.0",
   "author": "Google LLC",
   "url": "https://github.com/googleapis/googleapis",
@@ -310,7 +310,7 @@ steps:
     <ini name="memory_limit" value="2048M"/>
   </php>
 </phpunit>
-============== file: src/Example/Library/V1/Gapic/LibraryServiceGapicClient.php ==============
+============== file: src/V1/Gapic/LibraryServiceGapicClient.php ==============
 <?php
 /*
  * Copyright 2018 Google LLC
@@ -2414,7 +2414,7 @@ class LibraryServiceGapicClient
     }
 
 }
-============== file: src/Example/Library/V1/LibraryServiceClient.php ==============
+============== file: src/V1/LibraryServiceClient.php ==============
 <?php
 /*
  * Copyright 2018 Google LLC
@@ -2457,7 +2457,7 @@ class LibraryServiceClient extends LibraryServiceGapicClient
     // This class is intentionally empty, and is intended to hold manual
     // additions to the generated {@see LibraryServiceClientImpl} class.
 }
-============== file: src/Example/Library/V1/resources/library_service_client_config.json ==============
+============== file: src/V1/resources/library_service_client_config.json ==============
 {
   "interfaces": {
     "google.example.library.v1.LibraryService": {
@@ -2629,7 +2629,7 @@ class LibraryServiceClient extends LibraryServiceGapicClient
   }
 }
 
-============== file: src/Example/Library/V1/resources/library_service_descriptor_config.php ==============
+============== file: src/V1/resources/library_service_descriptor_config.php ==============
 <?php
 
 return [
@@ -2718,7 +2718,7 @@ return [
     ]
 ];
 
-============== file: src/Example/Library/V1/resources/library_service_rest_client_config.php ==============
+============== file: src/V1/resources/library_service_rest_client_config.php ==============
 <?php
 
 return [
@@ -2969,7 +2969,7 @@ return [
     ]
 ];
 
-============== file: tests/system/Example/Library/V1/LibraryServiceSmokeTest.php ==============
+============== file: tests/System/V1/LibraryServiceSmokeTest.php ==============
 <?php
 /*
  * Copyright 2018 Google LLC
@@ -2992,7 +2992,7 @@ return [
  * This file was automatically generated - do not edit!
  */
 
-namespace Google\Tests\System\Example\Library\V1;
+namespace Google\Example\Library\Tests\System\V1;
 
 use Google\Example\Library\V1\LibraryServiceClient;
 use Google\ApiCore\Testing\GeneratedTest;
@@ -3002,7 +3002,7 @@ use Google\Example\Library\V1\UpdateBookRequest;
 use Google\Protobuf\FieldMask;
 
 /**
- * @group library
+ * @group google_example_library
  * @group grpc
  */
 class LibraryServiceSmokeTest extends GeneratedTest
@@ -3028,11 +3028,7 @@ class LibraryServiceSmokeTest extends GeneratedTest
         $libraryServiceClient->updateBook($formattedName, $book, ['optionalFoo' => $optionalFoo, 'updateMask' => $updateMask, 'physicalMask' => $physicalMask]);
     }
 }
-============== file: tests/system/bootstrap.php ==============
-<?php
-
-require __DIR__ . '/../../vendor/autoload.php';
-============== file: tests/unit/Example/Library/V1/LibraryServiceClientTest.php ==============
+============== file: tests/Unit/V1/LibraryServiceClientTest.php ==============
 <?php
 /*
  * Copyright 2018 Google LLC
@@ -3055,7 +3051,7 @@ require __DIR__ . '/../../vendor/autoload.php';
  * This file was automatically generated - do not edit!
  */
 
-namespace Google\Tests\Unit\Example\Library\V1;
+namespace Google\Example\Library\Tests\Unit\V1;
 
 use Google\Example\Library\V1\LibraryServiceClient;
 use Google\ApiCore\ApiException;
@@ -3119,7 +3115,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
- * @group library
+ * @group google_example_library
  * @group grpc
  */
 class LibraryServiceClientTest extends GeneratedTest
@@ -5619,6 +5615,10 @@ class LibraryServiceClientTest extends GeneratedTest
     }
 
 }
+============== file: tests/system/bootstrap.php ==============
+<?php
+
+require __DIR__ . '/../../vendor/autoload.php';
 ============== file: tests/unit/bootstrap.php ==============
 <?php
 
