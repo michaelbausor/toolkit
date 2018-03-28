@@ -47,7 +47,7 @@ public class PhpSurfaceNamer extends SurfaceNamer {
         new ModelTypeFormatterImpl(new PhpModelTypeNameConverter(packageName)),
         new PhpTypeTable(packageName),
         new PhpCommentReformatter(),
-        packageName,
+        PhpPackageUtil.getPackageNameBeforeVersion(packageName),
         packageName);
   }
 

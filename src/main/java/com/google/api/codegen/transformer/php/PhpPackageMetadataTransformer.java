@@ -22,6 +22,7 @@ import com.google.api.codegen.transformer.ModelToViewTransformer;
 import com.google.api.codegen.transformer.PackageMetadataNamer;
 import com.google.api.codegen.transformer.PackageMetadataTransformer;
 import com.google.api.codegen.transformer.SurfaceNamer;
+import com.google.api.codegen.util.NamePath;
 import com.google.api.codegen.viewmodel.ApiMethodView;
 import com.google.api.codegen.viewmodel.ViewModel;
 import com.google.api.codegen.viewmodel.metadata.PackageDependencyView;
@@ -37,12 +38,12 @@ public class PhpPackageMetadataTransformer implements ModelToViewTransformer {
   private static final Map<String, String> TOP_LEVEL_TEMPLATE_FILES =
       ImmutableMap.<String, String>builder()
           .put("LICENSE.snip", "LICENSE")
-          .put("php/bootstrap_unit.snip", "tests/unit/bootstrap.php")
-          .put("php/bootstrap_system.snip", "tests/system/bootstrap.php")
+          .put("php/bootstrap_unit.snip", "tests/Unit/bootstrap.php")
+          .put("php/bootstrap_system.snip", "tests/System/bootstrap.php")
           .put("php/composer.snip", "composer.json")
           .put("php/CONTRIBUTING.snip", "CONTRIBUTING.md")
-          .put("php/phpunit.snip", "phpunit.dist.xml")
-          .put("php/phpunit-system.snip", "phpunit-system.dist.xml")
+          .put("php/phpunit.snip", "phpunit.xml.dist")
+          .put("php/phpunit-system.snip", "phpunit-system.xml.dist")
           .put("php/README.snip", "README.md")
           .put("php/VERSION.snip", "VERSION")
           .build();
@@ -92,12 +93,15 @@ public class PhpPackageMetadataTransformer implements ModelToViewTransformer {
 
     String gapicPackageName =
         surfaceNamer.getGapicPackageName(packageConfig.packageName(TargetLanguage.PHP));
+    String rootNamespace =
+        NamePath.backslashed(surfaceNamer.getRootPackageName()).toDoubleBackslashed();
     return metadataTransformer
         .generateMetadataView(
             metadataNamer, packageConfig, model, template, outputPath, TargetLanguage.PHP)
         .additionalDependencies(dependencies)
         .hasMultipleServices(model.hasMultipleServices())
         .identifier(metadataNamer.getMetadataIdentifier())
+        .rootNamespace(rootNamespace)
         .readmeMetadata(
             ReadmeMetadataView.newBuilder()
                 .moduleName("")

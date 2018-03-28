@@ -248,13 +248,13 @@
 
 @private createErrorStatus()
     $status = new stdClass();
-    $status->code = Grpc\STATUS_DATA_LOSS;
+    $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
     $status->details = 'internal error';
 
     $expectedExceptionMessage = json_encode([
        'message' => 'internal error',
-       'code' => Grpc\STATUS_DATA_LOSS,
-       'status' => 'DATA_LOSS',
+       'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+       'status' => ApiStatus::DATA_LOSS,
        'details' => [],
     ], JSON_PRETTY_PRINT);
 @end

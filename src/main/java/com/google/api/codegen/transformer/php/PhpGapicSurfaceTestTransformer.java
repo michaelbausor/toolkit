@@ -279,6 +279,7 @@ public class PhpGapicSurfaceTestTransformer implements ModelToViewTransformer {
 
   private void addUnitTestImports(ModelTypeTable typeTable) {
     typeTable.saveNicknameFor("\\Google\\ApiCore\\ApiException");
+    typeTable.saveNicknameFor("\\Google\\ApiCore\\ApiStatus");
     typeTable.saveNicknameFor("\\Google\\ApiCore\\BidiStream");
     typeTable.saveNicknameFor("\\Google\\ApiCore\\ServerStream");
     typeTable.saveNicknameFor("\\Google\\ApiCore\\LongRunning\\OperationsClient");
@@ -288,7 +289,6 @@ public class PhpGapicSurfaceTestTransformer implements ModelToViewTransformer {
     typeTable.saveNicknameFor("\\Google\\Protobuf\\Any");
     typeTable.saveNicknameFor("\\Google\\Protobuf\\GPBEmpty");
     typeTable.saveNicknameFor("\\Google\\LongRunning\\GetOperationRequest");
-    typeTable.saveNicknameFor("\\Grpc");
     typeTable.saveNicknameFor("\\stdClass");
   }
 

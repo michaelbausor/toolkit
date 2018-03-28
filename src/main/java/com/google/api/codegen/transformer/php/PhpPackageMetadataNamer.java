@@ -33,26 +33,32 @@ public class PhpPackageMetadataNamer extends PackageMetadataNamer {
     if (domainLayerLocation != null && !domainLayerLocation.equals("")) {
       // If a domainLayerLocation is provided, set the metadataIdentifier to be
       // "domainLayerLocation/serviceName".
-      this.metadataIdenfifier = domainLayerLocation + "/" + serviceName.toSeparatedString("");
+      this.metadataIdenfifier =
+          createComposerPackageName(Name.from(domainLayerLocation), this.serviceName);
     } else {
       // If no domainLayerLocation is provided, take the first component of the packageName and use
-      // that as the domain.
+      // that as the vendor.
       String packageNameWithoutPrefix =
           StringUtil.removePrefix(packageName, PhpPackageUtil.PACKAGE_SEPARATOR);
       List<String> packageComponents =
           Arrays.asList(PhpPackageUtil.splitPackageName(packageNameWithoutPrefix));
-      String domain = Name.upperCamel(packageComponents.get(0)).toSeparatedString("");
+      Name vendor = Name.upperCamel(packageComponents.get(0));
+
+      Name project;
       if (packageComponents.size() == 1) {
-        this.metadataIdenfifier = domain + "/" + domain;
+        project = vendor;
       } else {
         String packageNameWithoutFirstComponent =
             PhpPackageUtil.buildPackageName(packageComponents.subList(1, packageComponents.size()));
-        Name serviceNameWithoutFirstComponent =
-            getApiNameFromPackageName(packageNameWithoutFirstComponent);
-        this.metadataIdenfifier =
-            domain + "/" + serviceNameWithoutFirstComponent.toSeparatedString("");
+        project = getApiNameFromPackageName(packageNameWithoutFirstComponent);
       }
+
+      this.metadataIdenfifier = createComposerPackageName(vendor, project);
     }
+  }
+
+  private static String createComposerPackageName(Name vendor, Name project) {
+    return vendor.toSeparatedString("-") + "/" + project.toSeparatedString("-");
   }
 
   @Override

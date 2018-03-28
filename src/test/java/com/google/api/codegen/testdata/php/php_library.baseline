@@ -244,44 +244,35 @@ steps:
 
 [Product Documentation]: https://cloud.google.com/library
 ============== file: VERSION ==============
-0.1.0
+master
 ============== file: composer.json ==============
 {
-  "name": "google/examplelibrary",
-  "version": "0.1.0",
-  "author": "Google LLC",
-  "url": "https://github.com/googleapis/googleapis",
+  "name": "google/example-library",
   "description": "Google Example Library API client for PHP",
+  "license": "Apache-2.0",
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Google\\Example\\Library\\": "src",
+      "Google\\Example\\Library\\Tests\\": "tests",
+      "": "proto/src"
+    }
+  },
   "require": {
     "google/gax": "^0.6.*",
     "google/protobuf": "^0.7.*",
     "php" : "^5.5 || ^7.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5.7"
-  },
-  "license": "Apache-2.0",
-  "autoload": {
-    "psr-4": {
-      "Google\\Cloud\\": "src",
-      "Google\\Cloud\\Tests\\": "tests",
-      "Google\\Cloud\\Tests\\System\\": "tests/system",
-      "Google\\Cloud\\Tests\\Unit\\": "tests/unit",
-      "": "proto/src"
-    }
-  },
-  "scripts": {
-    "test": [
-      "phpunit tests"
-    ]
+    "phpunit/phpunit": "^4.8|^5.0"
   }
 }
-============== file: phpunit-system.dist.xml ==============
+============== file: phpunit-system.xml.dist ==============
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="./tests/system/bootstrap.php" colors="true">
+<phpunit bootstrap="./tests/System/bootstrap.php" colors="true">
   <testsuites>
     <testsuite>
-      <directory>tests/system</directory>
+      <directory>tests/System</directory>
     </testsuite>
   </testsuites>
   <filter>
@@ -293,12 +284,12 @@ steps:
     <ini name="memory_limit" value="2048M"/>
   </php>
 </phpunit>
-============== file: phpunit.dist.xml ==============
+============== file: phpunit.xml.dist ==============
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="./tests/unit/bootstrap.php" colors="true">
+<phpunit bootstrap="./tests/Unit/bootstrap.php" colors="true">
   <testsuites>
     <testsuite>
-      <directory>tests/unit</directory>
+      <directory>tests/Unit</directory>
     </testsuite>
   </testsuites>
   <filter>
@@ -3028,6 +3019,10 @@ class LibraryServiceSmokeTest extends GeneratedTest
         $libraryServiceClient->updateBook($formattedName, $book, ['optionalFoo' => $optionalFoo, 'updateMask' => $updateMask, 'physicalMask' => $physicalMask]);
     }
 }
+============== file: tests/System/bootstrap.php ==============
+<?php
+
+require __DIR__ . '/../../vendor/autoload.php';
 ============== file: tests/Unit/V1/LibraryServiceClientTest.php ==============
 <?php
 /*
@@ -3055,6 +3050,7 @@ namespace Google\Example\Library\Tests\Unit\V1;
 
 use Google\Example\Library\V1\LibraryServiceClient;
 use Google\ApiCore\ApiException;
+use Google\ApiCore\ApiStatus;
 use Google\ApiCore\BidiStream;
 use Google\ApiCore\LongRunning\OperationsClient;
 use Google\ApiCore\ServerStream;
@@ -3110,7 +3106,6 @@ use Google\Tagger\CustomNamespace\V1\AddLabelResponse;
 use Google\Tagger\CustomNamespace\V1\AddTagRequest;
 use Google\Tagger\CustomNamespace\V1\AddTagResponse;
 use Google\Tagger\CustomNamespace\V1\LabelerGrpcClient;
-use Grpc;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -3184,13 +3179,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3265,13 +3260,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3339,13 +3334,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3406,13 +3401,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3487,13 +3482,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3571,13 +3566,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3656,13 +3651,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3739,13 +3734,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3819,13 +3814,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3890,13 +3885,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -3973,13 +3968,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4057,13 +4052,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4131,13 +4126,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4209,13 +4204,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4296,13 +4291,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4379,13 +4374,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4459,13 +4454,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4538,13 +4533,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -4629,13 +4624,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $client = $this->createClient(['transport' => $transport]);
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
 
@@ -4741,13 +4736,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $client = $this->createClient(['transport' => $transport]);
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
 
@@ -4864,13 +4859,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $client = $this->createClient(['transport' => $transport]);
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
 
@@ -4951,13 +4946,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -5028,13 +5023,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -5104,13 +5099,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -5240,13 +5235,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $transport->addResponse($incompleteOperation);
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $operationsTransport->addResponse(null, $status);
@@ -5376,13 +5371,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $transport->addResponse($incompleteOperation);
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $operationsTransport->addResponse(null, $status);
@@ -5560,13 +5555,13 @@ class LibraryServiceClientTest extends GeneratedTest
         $this->assertTrue($transport->isExhausted());
 
         $status = new stdClass();
-        $status->code = Grpc\STATUS_DATA_LOSS;
+        $status->code = ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS);
         $status->details = 'internal error';
 
         $expectedExceptionMessage = json_encode([
            'message' => 'internal error',
-           'code' => Grpc\STATUS_DATA_LOSS,
-           'status' => 'DATA_LOSS',
+           'code' => ApiStatus::rpcCodeFromStatus(ApiStatus::DATA_LOSS),
+           'status' => ApiStatus::DATA_LOSS,
            'details' => [],
         ], JSON_PRETTY_PRINT);
         $transport->addResponse(null, $status);
@@ -5615,11 +5610,7 @@ class LibraryServiceClientTest extends GeneratedTest
     }
 
 }
-============== file: tests/system/bootstrap.php ==============
-<?php
-
-require __DIR__ . '/../../vendor/autoload.php';
-============== file: tests/unit/bootstrap.php ==============
+============== file: tests/Unit/bootstrap.php ==============
 <?php
 
 require __DIR__ . '/../../vendor/autoload.php';
