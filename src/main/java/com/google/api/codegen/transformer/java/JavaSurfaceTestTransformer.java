@@ -399,16 +399,12 @@ public class JavaSurfaceTestTransformer implements ModelToViewTransformer {
     ImportTypeTable typeTable = context.getImportTypeTable();
     typeTable.saveNicknameFor("com.google.api.gax.rpc.InvalidArgumentException");
     typeTable.saveNicknameFor("com.google.common.collect.Lists");
-    typeTable.saveNicknameFor("com.google.protobuf.GeneratedMessageV3");
     typeTable.saveNicknameFor("java.io.IOException");
-    typeTable.saveNicknameFor("java.util.ArrayList");
     typeTable.saveNicknameFor("java.util.Arrays");
     typeTable.saveNicknameFor("java.util.List");
-    typeTable.saveNicknameFor("java.util.Objects");
     typeTable.saveNicknameFor("org.junit.After");
     typeTable.saveNicknameFor("org.junit.AfterClass");
     typeTable.saveNicknameFor("org.junit.Assert");
-    typeTable.saveNicknameFor("org.junit.Before");
     typeTable.saveNicknameFor("org.junit.BeforeClass");
     typeTable.saveNicknameFor("org.junit.Test");
     if (context.getInterfaceConfig().hasLongRunningOperations()) {
@@ -424,20 +420,24 @@ public class JavaSurfaceTestTransformer implements ModelToViewTransformer {
         typeTable.saveNicknameFor("com.google.api.gax.grpc.testing.LocalChannelProvider");
         typeTable.saveNicknameFor("com.google.api.gax.grpc.testing.MockGrpcService");
         typeTable.saveNicknameFor("com.google.api.gax.grpc.testing.MockServiceHelper");
+        typeTable.saveNicknameFor("com.google.protobuf.GeneratedMessageV3");
         typeTable.saveNicknameFor("io.grpc.Status");
         typeTable.saveNicknameFor("io.grpc.StatusRuntimeException");
+        typeTable.saveNicknameFor("java.util.ArrayList");
+        typeTable.saveNicknameFor("java.util.Objects");
         typeTable.saveNicknameFor("java.util.concurrent.ExecutionException");
+        typeTable.saveNicknameFor("org.junit.Before");
         break;
       case HTTP:
-        typeTable.saveNicknameFor("com.google.api.gax.httpjson.ApiMessage");
         typeTable.saveNicknameFor("com.google.api.gax.httpjson.ApiMethodDescriptor");
+        typeTable.saveNicknameFor("com.google.api.gax.httpjson.GaxHttpJsonProperties");
         typeTable.saveNicknameFor("com.google.api.gax.httpjson.testing.MockHttpService");
+        typeTable.saveNicknameFor("com.google.api.gax.rpc.ApiClientHeaderProvider");
         typeTable.saveNicknameFor("com.google.api.gax.rpc.ApiException");
         typeTable.saveNicknameFor("com.google.api.gax.rpc.ApiExceptionFactory");
         typeTable.saveNicknameFor("com.google.api.gax.rpc.StatusCode.Code");
         typeTable.saveNicknameFor("com.google.api.gax.rpc.testing.FakeStatusCode");
         typeTable.saveNicknameFor("com.google.common.collect.ImmutableList");
-        typeTable.saveNicknameFor("java.io.UnsupportedEncodingException");
 
         // Import stub settings class in unit test file.
         SurfaceNamer stubNamer =
@@ -461,6 +461,7 @@ public class JavaSurfaceTestTransformer implements ModelToViewTransformer {
     typeTable.saveNicknameFor("java.util.Arrays");
     typeTable.saveNicknameFor("com.google.common.base.Preconditions");
     typeTable.saveNicknameFor("com.google.common.collect.Lists");
+    typeTable.saveNicknameFor("org.junit.Test");
   }
 
   private void addMockServiceImplImports(InterfaceContext context) {
