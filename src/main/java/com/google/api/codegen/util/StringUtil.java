@@ -23,4 +23,11 @@ public class StringUtil {
     }
     return original;
   }
+
+  public static String removePrefix(String original, String prefix) {
+    if (original.startsWith(prefix)) {
+      original = original.substring(prefix.length());
+    }
+    return original;
+  }
 }

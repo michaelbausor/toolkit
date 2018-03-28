@@ -16,6 +16,7 @@ package com.google.api.codegen.transformer.php;
 
 import com.google.api.codegen.transformer.PackageMetadataNamer;
 import com.google.api.codegen.util.Name;
+import com.google.api.codegen.util.StringUtil;
 import com.google.api.codegen.util.php.PhpPackageUtil;
 import java.util.Arrays;
 import java.util.List;
@@ -29,22 +30,27 @@ public class PhpPackageMetadataNamer extends PackageMetadataNamer {
     // Get the service name from the package name by removing the version suffix (if any).
     this.serviceName = getApiNameFromPackageName(packageName);
 
-
-    if (domainLayerLocation != null) {
+    if (domainLayerLocation != null && !domainLayerLocation.equals("")) {
       // If a domainLayerLocation is provided, set the metadataIdentifier to be
       // "domainLayerLocation/serviceName".
       this.metadataIdenfifier = domainLayerLocation + "/" + serviceName.toSeparatedString("");
     } else {
       // If no domainLayerLocation is provided, take the first component of the packageName and use
       // that as the domain.
-      List<String> packageComponents = Arrays.asList(PhpPackageUtil.splitPackageName(packageName));
-      String domain = packageComponents.get(0);
+      String packageNameWithoutPrefix =
+          StringUtil.removePrefix(packageName, PhpPackageUtil.PACKAGE_SEPARATOR);
+      List<String> packageComponents =
+          Arrays.asList(PhpPackageUtil.splitPackageName(packageNameWithoutPrefix));
+      String domain = Name.upperCamel(packageComponents.get(0)).toSeparatedString("");
       if (packageComponents.size() == 1) {
         this.metadataIdenfifier = domain + "/" + domain;
       } else {
-        String packageNameWithoutFirstComponent = PhpPackageUtil.buildPackageName(packageComponents.subList(1, packageComponents.size() - 1));
-        Name serviceNameWithoutFirstComponent = getApiNameFromPackageName(packageNameWithoutFirstComponent);
-        his.metadataIdenfifier = domain + "/" + serviceNameWithoutFirstComponent.toSeparatedString("");
+        String packageNameWithoutFirstComponent =
+            PhpPackageUtil.buildPackageName(packageComponents.subList(1, packageComponents.size()));
+        Name serviceNameWithoutFirstComponent =
+            getApiNameFromPackageName(packageNameWithoutFirstComponent);
+        this.metadataIdenfifier =
+            domain + "/" + serviceNameWithoutFirstComponent.toSeparatedString("");
       }
     }
   }
@@ -56,12 +62,7 @@ public class PhpPackageMetadataNamer extends PackageMetadataNamer {
 
   @Override
   public String getMetadataIdentifier() {
-    String serviceNameLower = serviceName.toSeparatedString("");
-    if (domain != null && !domain.isEmpty()) {
-      return domain + "/" + serviceNameLower;
-    } else {
-      return serviceNameLower + "/" + serviceNameLower;
-    }
+    return metadataIdenfifier;
   }
 
   public static Name getApiNameFromPackageName(String packageName) {

@@ -23,7 +23,7 @@ import java.util.List;
 /** Utility class for PHP to manipulate package strings. */
 public class PhpPackageUtil {
 
-  private static String PACKAGE_SEPARATOR = "\\";
+  public static String PACKAGE_SEPARATOR = "\\";
   private static String PACKAGE_SPLIT_REGEX = "[\\\\]";
   private static List<String> PACKAGE_PREFIX = Lists.newArrayList("Google", "Cloud");
   private static String PACKAGE_VERSION_REGEX = "V\\d+.*";

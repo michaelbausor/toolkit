@@ -26,23 +26,27 @@ public class PhpPackageMetadataNamerTest {
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("package/package");
 
     namer = new PhpPackageMetadataNamer("Some\\Package", null);
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
+    Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("some/package");
+
+    namer = new PhpPackageMetadataNamer("\\Some\\Package", null);
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("some/package");
 
     namer = new PhpPackageMetadataNamer("Some\\Package\\V1", null);
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomeP ackage");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("some/package");
 
     namer = new PhpPackageMetadataNamer("Some\\Package\\V1beta1", null);
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("some/package");
 
     namer = new PhpPackageMetadataNamer("Some\\CamelCasePackage\\V1", null);
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Camel Case Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomeCamelCasePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("some/camelcasepackage");
 
     namer = new PhpPackageMetadataNamer("Some\\Deep\\Package\\V1", null);
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Deep Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomeDeepPackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("some/deeppackage");
   }
 
@@ -53,23 +57,27 @@ public class PhpPackageMetadataNamerTest {
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("domain/package");
 
     namer = new PhpPackageMetadataNamer("Some\\Package", "domain");
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
+    Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("domain/somepackage");
+
+    namer = new PhpPackageMetadataNamer("\\Some\\Package", "domain");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("domain/somepackage");
 
     namer = new PhpPackageMetadataNamer("Some\\Package\\V1", "domain");
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("domain/somepackage");
 
     namer = new PhpPackageMetadataNamer("Some\\Package\\V1beta1", "domain");
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("domain/somepackage");
 
     namer = new PhpPackageMetadataNamer("Some\\CamelCasePackage\\V1", "domain");
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Camel Case Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomeCamelCasePackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("domain/somecamelcasepackage");
 
     namer = new PhpPackageMetadataNamer("Some\\Deep\\Package\\V1", "domain");
-    Truth.assertThat(namer.getMetadataName()).isEqualTo("Some Deep Package");
+    Truth.assertThat(namer.getMetadataName()).isEqualTo("SomeDeepPackage");
     Truth.assertThat(namer.getMetadataIdentifier()).isEqualTo("domain/somedeeppackage");
   }
 

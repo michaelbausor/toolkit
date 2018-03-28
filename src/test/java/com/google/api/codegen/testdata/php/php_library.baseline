@@ -247,7 +247,7 @@ steps:
 0.1.0
 ============== file: composer.json ==============
 {
-  "name": "googleexamplelibrary/googleexamplelibrary",
+  "name": "google/examplelibrary",
   "version": "0.1.0",
   "author": "Google LLC",
   "url": "https://github.com/googleapis/googleapis",
