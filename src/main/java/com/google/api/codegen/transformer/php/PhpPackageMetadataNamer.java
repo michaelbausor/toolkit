@@ -18,8 +18,6 @@ import com.google.api.codegen.transformer.PackageMetadataNamer;
 import com.google.api.codegen.util.Name;
 import com.google.api.codegen.util.StringUtil;
 import com.google.api.codegen.util.php.PhpPackageUtil;
-import java.util.Arrays;
-import java.util.List;
 
 /** PHPPackageMetadataNamer provides PHP specific names for metadata views. */
 public class PhpPackageMetadataNamer extends PackageMetadataNamer {
@@ -34,31 +32,26 @@ public class PhpPackageMetadataNamer extends PackageMetadataNamer {
       // If a domainLayerLocation is provided, set the metadataIdentifier to be
       // "domainLayerLocation/serviceName".
       this.metadataIdenfifier =
-          createComposerPackageName(Name.from(domainLayerLocation), this.serviceName);
+          PhpPackageUtil.formatComposerPackageName(domainLayerLocation, packageName);
     } else {
       // If no domainLayerLocation is provided, take the first component of the packageName and use
       // that as the vendor.
-      String packageNameWithoutPrefix =
+      String normalizedPackageName =
           StringUtil.removePrefix(packageName, PhpPackageUtil.PACKAGE_SEPARATOR);
-      List<String> packageComponents =
-          Arrays.asList(PhpPackageUtil.splitPackageName(packageNameWithoutPrefix));
-      Name vendor = Name.upperCamel(packageComponents.get(0));
 
-      Name project;
-      if (packageComponents.size() == 1) {
-        project = vendor;
+      int firstSeparatorIndex = normalizedPackageName.indexOf(PhpPackageUtil.PACKAGE_SEPARATOR);
+
+      if (firstSeparatorIndex == -1) {
+        this.metadataIdenfifier =
+            PhpPackageUtil.formatComposerPackageName(normalizedPackageName, normalizedPackageName);
       } else {
-        String packageNameWithoutFirstComponent =
-            PhpPackageUtil.buildPackageName(packageComponents.subList(1, packageComponents.size()));
-        project = getApiNameFromPackageName(packageNameWithoutFirstComponent);
+        String vendor = normalizedPackageName.substring(0, firstSeparatorIndex);
+        String project =
+            normalizedPackageName.substring(
+                firstSeparatorIndex + PhpPackageUtil.PACKAGE_SEPARATOR.length());
+        this.metadataIdenfifier = PhpPackageUtil.formatComposerPackageName(vendor, project);
       }
-
-      this.metadataIdenfifier = createComposerPackageName(vendor, project);
     }
-  }
-
-  private static String createComposerPackageName(Name vendor, Name project) {
-    return vendor.toSeparatedString("-") + "/" + project.toSeparatedString("-");
   }
 
   @Override

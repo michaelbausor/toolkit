@@ -14,6 +14,7 @@
  */
 package com.google.api.codegen.util.php;
 
+import com.google.api.codegen.util.Name;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -94,5 +95,21 @@ public class PhpPackageUtil {
       packageComponents.add(packageElement);
     }
     return buildPackageName(packageComponents);
+  }
+
+  public static String formatComposerPackageName(String vendor, String project) {
+    return formatComposerPackageElement(vendor) + "/" + formatComposerPackageElement(project);
+  }
+
+  /**
+   * Formatting for composer package element. This formatting is somewhat complex - the goal is to
+   * convert e.g. "Cloud\BigQuery" into "cloud-bigquery", avoiding "cloud-big-query".
+   */
+  private static String formatComposerPackageElement(String element) {
+    Name name = Name.from();
+    for (String piece : splitPackageName(element)) {
+      name = name.join(Name.upperCamel(piece).toSeparatedString(""));
+    }
+    return name.toSeparatedString("-");
   }
 }
