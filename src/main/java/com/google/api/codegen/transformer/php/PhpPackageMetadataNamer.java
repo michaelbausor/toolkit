@@ -18,6 +18,7 @@ import com.google.api.codegen.transformer.PackageMetadataNamer;
 import com.google.api.codegen.util.Name;
 import com.google.api.codegen.util.StringUtil;
 import com.google.api.codegen.util.php.PhpPackageUtil;
+import java.util.List;
 
 /** PHPPackageMetadataNamer provides PHP specific names for metadata views. */
 public class PhpPackageMetadataNamer extends PackageMetadataNamer {
@@ -28,28 +29,30 @@ public class PhpPackageMetadataNamer extends PackageMetadataNamer {
     // Get the service name from the package name by removing the version suffix (if any).
     this.serviceName = getApiNameFromPackageName(packageName);
 
+    Name normalizedPackageName = normalizePackage(packageName);
+
     if (domainLayerLocation != null && !domainLayerLocation.equals("")) {
       // If a domainLayerLocation is provided, set the metadataIdentifier to be
       // "domainLayerLocation/serviceName".
       this.metadataIdenfifier =
-          PhpPackageUtil.formatComposerPackageName(domainLayerLocation, packageName);
+          PhpPackageUtil.formatComposerPackageName(
+              Name.from(domainLayerLocation), normalizedPackageName);
     } else {
       // If no domainLayerLocation is provided, take the first component of the packageName and use
       // that as the vendor.
-      String normalizedPackageName =
-          StringUtil.removePrefix(packageName, PhpPackageUtil.PACKAGE_SEPARATOR);
 
-      int firstSeparatorIndex = normalizedPackageName.indexOf(PhpPackageUtil.PACKAGE_SEPARATOR);
+      List<Name> pieces = normalizedPackageName.toPieces();
+      Name domain = pieces.get(0);
 
-      if (firstSeparatorIndex == -1) {
-        this.metadataIdenfifier =
-            PhpPackageUtil.formatComposerPackageName(normalizedPackageName, normalizedPackageName);
+      if (pieces.size() == 1) {
+        this.metadataIdenfifier = PhpPackageUtil.formatComposerPackageName(domain, domain);
       } else {
-        String vendor = normalizedPackageName.substring(0, firstSeparatorIndex);
-        String project =
-            normalizedPackageName.substring(
-                firstSeparatorIndex + PhpPackageUtil.PACKAGE_SEPARATOR.length());
-        this.metadataIdenfifier = PhpPackageUtil.formatComposerPackageName(vendor, project);
+        Name trimmedPackageName = Name.from();
+        for (Name piece : pieces.subList(1, pieces.size())) {
+          trimmedPackageName = trimmedPackageName.join(piece);
+        }
+        this.metadataIdenfifier =
+            PhpPackageUtil.formatComposerPackageName(domain, trimmedPackageName);
       }
     }
   }
@@ -67,5 +70,22 @@ public class PhpPackageMetadataNamer extends PackageMetadataNamer {
   public static Name getApiNameFromPackageName(String packageName) {
     return Name.upperCamel(
         PhpPackageUtil.splitPackageName(PhpPackageUtil.getPackageNameBeforeVersion(packageName)));
+  }
+
+  /**
+   * Normalize the package name by: - Removing the version - Splitting on PACKAGE_SEPARATOR and
+   * converting each piece to lowercase unseparated string
+   *
+   * <p>So "Some\\PackageName\\V1" becomes Name["some", "packagename"];
+   */
+  private static Name normalizePackage(String packageName) {
+    String packageNameWithoutVersion = PhpPackageUtil.getPackageNameBeforeVersion(packageName);
+    String normalizedPackageName =
+        StringUtil.removePrefix(packageNameWithoutVersion, PhpPackageUtil.PACKAGE_SEPARATOR);
+    Name name = Name.from();
+    for (String piece : PhpPackageUtil.splitPackageName(normalizedPackageName)) {
+      name = name.join(Name.upperCamel(piece).toSeparatedString(""));
+    }
+    return name;
   }
 }

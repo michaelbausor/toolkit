@@ -247,7 +247,7 @@ steps:
 master
 ============== file: composer.json ==============
 {
-  "name": "google/long-running",
+  "name": "google/longrunning",
   "description": "Google Long Running Operations API client for PHP",
   "license": "Apache-2.0",
   "minimum-stability": "stable",

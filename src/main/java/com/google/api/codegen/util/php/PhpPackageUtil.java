@@ -97,19 +97,11 @@ public class PhpPackageUtil {
     return buildPackageName(packageComponents);
   }
 
-  public static String formatComposerPackageName(String vendor, String project) {
+  public static String formatComposerPackageName(Name vendor, Name project) {
     return formatComposerPackageElement(vendor) + "/" + formatComposerPackageElement(project);
   }
 
-  /**
-   * Formatting for composer package element. This formatting is somewhat complex - the goal is to
-   * convert e.g. "Cloud\BigQuery" into "cloud-bigquery", avoiding "cloud-big-query".
-   */
-  private static String formatComposerPackageElement(String element) {
-    Name name = Name.from();
-    for (String piece : splitPackageName(element)) {
-      name = name.join(Name.upperCamel(piece).toSeparatedString(""));
-    }
-    return name.toSeparatedString("-");
+  private static String formatComposerPackageElement(Name element) {
+    return element.toSeparatedString("-");
   }
 }

@@ -19,6 +19,7 @@ import com.google.api.codegen.util.CommonAcronyms.SubNamePiece;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -274,6 +275,15 @@ public class Name {
     return toLowerUnderscore().replace("_", separator);
   }
 
+  /** Return each of the pieces of the Name as a separate Name object. */
+  public List<Name> toPieces() {
+    List<Name> newPieces = new ArrayList<>();
+    for (NamePiece namePiece : namePieces) {
+      newPieces.add(namePiece.toName());
+    }
+    return newPieces;
+  }
+
   /**
    * Returns a new Name containing the pieces from this Name plus the given identifier added on the
    * end.
@@ -332,6 +342,10 @@ public class Name {
       this.identifier = identifier;
       this.caseFormat = caseFormat;
       this.casingMode = casingMode;
+    }
+
+    private Name toName() {
+      return new Name(Lists.newArrayList(this));
     }
   }
 
