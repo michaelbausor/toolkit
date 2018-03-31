@@ -8,10 +8,57 @@
     {@readme(metadata, exampleMethods(metadata.exampleMethods), installationLines(metadata))}
 @end
 
+@snippet title(metadata)
+    @# {@metadata.fullName} for PHP ([{@metadata.developmentStatusTitle}]({@metadata.versioningDocumentationLink}))
+
+    > Idiomatic PHP client for [{@metadata.fullName}]({@metadata.libraryDocumentationLink}).
+
+    {@wrapLines(@metadata.apiSummary)}
+@end
+
+@snippet quickStart(metadata, samples, installationLines)
+    @## Quick Start
+    In order to use this library, you first need to go through the following
+    steps:
+
+    1. [Select or create a Cloud Platform project.](https://console.cloud.google.com/project)
+    2. [Enable billing for your project.](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project)
+    3. [Enable the {@metadata.fullName}.](https://console.cloud.google.com/apis/api/{@metadata.shortName})
+    4. [Setup Authentication.]({@metadata.authDocumentationLink})
+
+    @if installationLines
+      @### Installation
+      {@installationLines}
+
+    @end
+    @if samples
+      @### Preview
+      {@samples}
+
+    @end
+    @### Next Steps
+    @if metadata.libraryDocumentationLink
+      - Read the [Client Library Documentation]{@metadata.libraryDocumentationLink} for {@metadata.fullName}
+        to see other available methods on the client.
+    @end
+    - Read the [{@metadata.fullName} Product documentation](https://cloud.google.com/{@metadata.shortName})
+      to learn more about the product and see How-to Guides.
+    - View this [repository's main README]({@metadata.mainReadmeLink})
+      to see the full list of Cloud APIs that we cover.
+@end
+
 @private exampleMethods(methods)
-    ***EXAMPLE METHODS HERE***
 @end
 
 @private installationLines(metadata)
-    ***INSTALL INSTRUCTIONS HERE***
+    ```
+    $ composer require {@metadata.identifier}
+    ```
+    If it is not already installed, we recommend installing the gRPC extension, which provides
+    support for streaming methods. For installation instructions,
+    [see here](https://cloud.google.com/php/grpc).
+
+    In addition to the gRPC extension, we also recommend installing the protobuf extension for
+    improved performance. For installation instructions,
+    [see here](https://cloud.google.com/php/grpc#install_the_protobuf_runtime_library).
 @end

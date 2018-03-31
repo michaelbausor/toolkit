@@ -35,6 +35,16 @@ import java.util.Map;
 
 /** Responsible for producing package metadata related views for PHP */
 public class PhpPackageMetadataTransformer implements ModelToViewTransformer {
+
+  private static final String GITHUB_DOC_HOST =
+      "https://googlecloudplatform.github.io/google-cloud-php";
+  private static final String GITHUB_REPO_HOST =
+      "https://github.com/GoogleCloudPlatform/google-cloud-php";
+  private static final String AUTH_DOC_PATH = "/#/docs/google-cloud/master/guides/authentication";
+  private static final String LIB_DOC_PATH = "/#/docs/%s";
+  private static final String MAIN_README_PATH = "/blob/master/README.md";
+  private static final String VERSIONING_DOC_PATH = "#versioning";
+
   private static final Map<String, String> TOP_LEVEL_TEMPLATE_FILES =
       ImmutableMap.<String, String>builder()
           .put("LICENSE.snip", "LICENSE")
@@ -104,6 +114,7 @@ public class PhpPackageMetadataTransformer implements ModelToViewTransformer {
         .rootNamespace(rootNamespace)
         .readmeMetadata(
             ReadmeMetadataView.newBuilder()
+                .identifier(metadataNamer.getMetadataIdentifier())
                 .moduleName("")
                 .shortName(packageConfig.shortName())
                 .fullName(model.getTitle())
@@ -116,10 +127,11 @@ public class PhpPackageMetadataTransformer implements ModelToViewTransformer {
                         metadataTransformer.getMergedReleaseLevel(
                             packageConfig, productConfig, TargetLanguage.PHP)))
                 .targetLanguage("PHP")
-                .mainReadmeLink("")
-                .libraryDocumentationLink("")
-                .authDocumentationLink("")
-                .versioningDocumentationLink("")
+                .mainReadmeLink(GITHUB_REPO_HOST + MAIN_README_PATH)
+                .libraryDocumentationLink(
+                    GITHUB_DOC_HOST + String.format(LIB_DOC_PATH, packageConfig.shortName()))
+                .authDocumentationLink(GITHUB_DOC_HOST + AUTH_DOC_PATH)
+                .versioningDocumentationLink(GITHUB_REPO_HOST + VERSIONING_DOC_PATH)
                 .exampleMethods(ImmutableList.<ApiMethodView>of())
                 .build())
         .build();
