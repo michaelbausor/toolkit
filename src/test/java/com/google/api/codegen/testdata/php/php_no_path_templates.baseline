@@ -20,6 +20,34 @@
     "phpunit/phpunit": "^4.8|^5.0"
   }
 }
+============== file: phpunit-system.xml.dist ==============
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="./tests/System/bootstrap.php" colors="true">
+  <testsuites>
+    <testsuite>
+      <directory>tests/System</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+</phpunit>
+============== file: phpunit.xml.dist ==============
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit colors="true">
+  <testsuites>
+    <testsuite>
+      <directory>tests/Unit</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+</phpunit>
 ============== file: src/V1/Gapic/NoTemplatesApiServiceGapicClient.php ==============
 <?php
 /*
@@ -331,6 +359,9 @@ return [
     ]
 ];
 
+============== file: tests/System/bootstrap.php ==============
+<?php
+
 ============== file: tests/Unit/V1/NoTemplatesApiServiceClientTest.php ==============
 <?php
 /*
@@ -358,6 +389,7 @@ namespace Google\Example\Tests\Unit\V1;
 
 use Google\Example\V1\NoTemplatesApiServiceClient;
 use Google\ApiCore\ApiException;
+use Google\ApiCore\ApiStatus;
 use Google\ApiCore\BidiStream;
 use Google\ApiCore\LongRunning\OperationsClient;
 use Google\ApiCore\ServerStream;
@@ -368,7 +400,6 @@ use Google\Cloud\Example\V1\NoTemplatesAPIServiceGrpcClient;
 use Google\LongRunning\GetOperationRequest;
 use Google\Protobuf\Any;
 use Google\Protobuf\GPBEmpty;
-use Grpc;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

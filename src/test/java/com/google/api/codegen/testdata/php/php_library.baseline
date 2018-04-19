@@ -20,6 +20,34 @@
     "phpunit/phpunit": "^4.8|^5.0"
   }
 }
+============== file: phpunit-system.xml.dist ==============
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="./tests/System/bootstrap.php" colors="true">
+  <testsuites>
+    <testsuite>
+      <directory>tests/System</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+</phpunit>
+============== file: phpunit.xml.dist ==============
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit colors="true">
+  <testsuites>
+    <testsuite>
+      <directory>tests/Unit</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+</phpunit>
 ============== file: src/V1/Gapic/LibraryServiceGapicClient.php ==============
 <?php
 /*
@@ -2764,9 +2792,6 @@ class LibraryServiceSmokeTest extends GeneratedTest
     public function updateBookTest()
     {
         $projectId = getenv('PROJECT_ID');
-        if ($projectId === false) {
-            $this->fail('Environment variable PROJECT_ID must be set for smoke test');
-        }
 
         $libraryServiceClient = new LibraryServiceClient();
         $formattedName = $libraryServiceClient->bookName('testShelf-'. time(), $projectId);
@@ -2778,6 +2803,15 @@ class LibraryServiceSmokeTest extends GeneratedTest
         $physicalMask = new \Google\Example\Library\V1\FieldMask();
         $libraryServiceClient->updateBook($formattedName, $book, ['optionalFoo' => $optionalFoo, 'updateMask' => $updateMask, 'physicalMask' => $physicalMask]);
     }
+}
+============== file: tests/System/bootstrap.php ==============
+<?php
+
+if (!getenv('PROJECT_ID')) {
+    throw new \RuntimeException(sprintf(
+        'Please set the \'%s\' env var to run the tests',
+        $var
+    ));
 }
 ============== file: tests/Unit/V1/LibraryServiceClientTest.php ==============
 <?php
@@ -2806,6 +2840,7 @@ namespace Google\Example\Library\Tests\Unit\V1;
 
 use Google\Example\Library\V1\LibraryServiceClient;
 use Google\ApiCore\ApiException;
+use Google\ApiCore\ApiStatus;
 use Google\ApiCore\BidiStream;
 use Google\ApiCore\LongRunning\OperationsClient;
 use Google\ApiCore\ServerStream;
@@ -2861,7 +2896,6 @@ use Google\Tagger\CustomNamespace\V1\AddLabelResponse;
 use Google\Tagger\CustomNamespace\V1\AddTagRequest;
 use Google\Tagger\CustomNamespace\V1\AddTagResponse;
 use Google\Tagger\CustomNamespace\V1\LabelerGrpcClient;
-use Grpc;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

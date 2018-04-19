@@ -20,6 +20,34 @@
     "phpunit/phpunit": "^4.8|^5.0"
   }
 }
+============== file: phpunit-system.xml.dist ==============
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="./tests/System/bootstrap.php" colors="true">
+  <testsuites>
+    <testsuite>
+      <directory>tests/System</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+</phpunit>
+============== file: phpunit.xml.dist ==============
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit colors="true">
+  <testsuites>
+    <testsuite>
+      <directory>tests/Unit</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+</phpunit>
 ============== file: src/OperationsClient.php ==============
 <?php
 /*
@@ -698,15 +726,21 @@ class OperationsSmokeTest extends GeneratedTest
     public function listOperationsTest()
     {
         $projectId = getenv('PROJECT_ID');
-        if ($projectId === false) {
-            $this->fail('Environment variable PROJECT_ID must be set for smoke test');
-        }
 
         $operationsClient = new OperationsClient();
         $name = 'my-name';
         $filter = $projectId;
         $operationsClient->listOperations($name, $filter);
     }
+}
+============== file: tests/System/bootstrap.php ==============
+<?php
+
+if (!getenv('PROJECT_ID')) {
+    throw new \RuntimeException(sprintf(
+        'Please set the \'%s\' env var to run the tests',
+        $var
+    ));
 }
 ============== file: tests/Unit/OperationsClientTest.php ==============
 <?php
@@ -748,6 +782,7 @@ class OperationsSmokeTest extends GeneratedTest
 namespace Google\LongRunning\Tests\Unit;
 
 use Google\ApiCore\ApiException;
+use Google\ApiCore\ApiStatus;
 use Google\ApiCore\BidiStream;
 use Google\ApiCore\LongRunning\OperationsClient;
 use Google\ApiCore\ServerStream;
@@ -762,7 +797,6 @@ use Google\LongRunning\Operation;
 use Google\LongRunning\OperationsGrpcClient;
 use Google\Protobuf\Any;
 use Google\Protobuf\GPBEmpty;
-use Grpc;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

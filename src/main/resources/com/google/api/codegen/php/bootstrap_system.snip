@@ -1,0 +1,12 @@
+@snippet generate(metadata)
+    <?php
+
+    @if metadata.requireProjectId
+        if (!getenv('PROJECT_ID')) {
+            throw new \RuntimeException(sprintf(
+                'Please set the \'%s\' env var to run the tests',
+                $var
+            ));
+        }
+    @end
+@end

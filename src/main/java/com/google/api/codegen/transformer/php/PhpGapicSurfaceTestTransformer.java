@@ -47,18 +47,27 @@ import com.google.api.codegen.viewmodel.ImportSectionView;
 import com.google.api.codegen.viewmodel.InitCodeView;
 import com.google.api.codegen.viewmodel.OptionalArrayMethodView;
 import com.google.api.codegen.viewmodel.ViewModel;
+import com.google.api.codegen.viewmodel.metadata.TestMetadataView;
 import com.google.api.codegen.viewmodel.testing.ClientTestClassView;
 import com.google.api.codegen.viewmodel.testing.ClientTestFileView;
 import com.google.api.codegen.viewmodel.testing.SmokeTestClassView;
 import com.google.api.codegen.viewmodel.testing.TestCaseView;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** Responsible for producing testing related views for PHP. */
 public class PhpGapicSurfaceTestTransformer implements ModelToViewTransformer {
   private static final String SMOKE_TEST_TEMPLATE_FILE = "php/smoke_test.snip";
   private static final String UNIT_TEST_TEMPLATE_FILE = "php/test.snip";
+  private static final Map<String, String> TEST_METADATA_TEMPLATE_FILES =
+      ImmutableMap.<String, String>builder()
+          .put("php/bootstrap_system.snip", "tests/System/bootstrap.php")
+          .put("php/phpunit.snip", "phpunit.xml.dist")
+          .put("php/phpunit-system.snip", "phpunit-system.xml.dist")
+          .build();
 
   private final PhpImportSectionTransformer importSectionTransformer =
       new PhpImportSectionTransformer();
@@ -80,20 +89,30 @@ public class PhpGapicSurfaceTestTransformer implements ModelToViewTransformer {
 
   @Override
   public List<String> getTemplateFileNames() {
-    return ImmutableList.of(SMOKE_TEST_TEMPLATE_FILE, UNIT_TEST_TEMPLATE_FILE);
+    return ImmutableList.<String>builder()
+        .add(SMOKE_TEST_TEMPLATE_FILE)
+        .add(UNIT_TEST_TEMPLATE_FILE)
+        .addAll(TEST_METADATA_TEMPLATE_FILES.keySet())
+        .build();
   }
 
   @Override
   public List<ViewModel> transform(ApiModel model, GapicProductConfig productConfig) {
     List<ViewModel> views = new ArrayList<>();
+    boolean requireProjectId = false;
     for (InterfaceModel apiInterface : model.getInterfaces()) {
       GapicInterfaceContext context =
           createContext(apiInterface, productConfig, PhpSurfaceNamer.TestKind.UNIT);
       views.add(createUnitTestFileView(context));
       if (context.getInterfaceConfig().getSmokeTestConfig() != null) {
         context = createContext(apiInterface, productConfig, PhpSurfaceNamer.TestKind.SYSTEM);
-        views.add(createSmokeTestClassView(context));
+        SmokeTestClassView smokeTestClassView = createSmokeTestClassView(context);
+        views.add(smokeTestClassView);
+        requireProjectId |= smokeTestClassView.requireProjectId();
       }
+    }
+    for (Map.Entry<String, String> entry : TEST_METADATA_TEMPLATE_FILES.entrySet()) {
+      views.add(generateTestMetadataView(requireProjectId, entry.getKey(), entry.getValue()));
     }
     return views;
   }
@@ -280,8 +299,18 @@ public class PhpGapicSurfaceTestTransformer implements ModelToViewTransformer {
     return apiMethodView.build();
   }
 
+  private TestMetadataView generateTestMetadataView(
+      boolean requireProjectId, String template, String outputPath) {
+    return TestMetadataView.newBuilder()
+        .templateFileName(template)
+        .outputPath(outputPath)
+        .requireProjectId(requireProjectId)
+        .build();
+  }
+
   private void addUnitTestImports(ModelTypeTable typeTable) {
     typeTable.saveNicknameFor("\\Google\\ApiCore\\ApiException");
+    typeTable.saveNicknameFor("\\Google\\ApiCore\\ApiStatus");
     typeTable.saveNicknameFor("\\Google\\ApiCore\\BidiStream");
     typeTable.saveNicknameFor("\\Google\\ApiCore\\ServerStream");
     typeTable.saveNicknameFor("\\Google\\ApiCore\\LongRunning\\OperationsClient");
@@ -291,7 +320,6 @@ public class PhpGapicSurfaceTestTransformer implements ModelToViewTransformer {
     typeTable.saveNicknameFor("\\Google\\Protobuf\\Any");
     typeTable.saveNicknameFor("\\Google\\Protobuf\\GPBEmpty");
     typeTable.saveNicknameFor("\\Google\\LongRunning\\GetOperationRequest");
-    typeTable.saveNicknameFor("\\Grpc");
     typeTable.saveNicknameFor("\\stdClass");
   }
 
