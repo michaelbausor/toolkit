@@ -389,7 +389,6 @@ namespace Google\Example\Tests\Unit\V1;
 
 use Google\Example\V1\NoTemplatesApiServiceClient;
 use Google\ApiCore\ApiException;
-use Google\ApiCore\ApiStatus;
 use Google\ApiCore\BidiStream;
 use Google\ApiCore\LongRunning\OperationsClient;
 use Google\ApiCore\ServerStream;
@@ -400,6 +399,7 @@ use Google\Cloud\Example\V1\NoTemplatesAPIServiceGrpcClient;
 use Google\LongRunning\GetOperationRequest;
 use Google\Protobuf\Any;
 use Google\Protobuf\GPBEmpty;
+use Grpc;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

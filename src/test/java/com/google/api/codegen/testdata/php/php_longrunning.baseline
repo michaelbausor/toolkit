@@ -782,7 +782,6 @@ if (!getenv('PROJECT_ID')) {
 namespace Google\LongRunning\Tests\Unit;
 
 use Google\ApiCore\ApiException;
-use Google\ApiCore\ApiStatus;
 use Google\ApiCore\BidiStream;
 use Google\ApiCore\LongRunning\OperationsClient;
 use Google\ApiCore\ServerStream;
@@ -797,6 +796,7 @@ use Google\LongRunning\Operation;
 use Google\LongRunning\OperationsGrpcClient;
 use Google\Protobuf\Any;
 use Google\Protobuf\GPBEmpty;
+use Grpc;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

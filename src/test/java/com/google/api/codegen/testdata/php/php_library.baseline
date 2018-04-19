@@ -2840,7 +2840,6 @@ namespace Google\Example\Library\Tests\Unit\V1;
 
 use Google\Example\Library\V1\LibraryServiceClient;
 use Google\ApiCore\ApiException;
-use Google\ApiCore\ApiStatus;
 use Google\ApiCore\BidiStream;
 use Google\ApiCore\LongRunning\OperationsClient;
 use Google\ApiCore\ServerStream;
@@ -2896,6 +2895,7 @@ use Google\Tagger\CustomNamespace\V1\AddLabelResponse;
 use Google\Tagger\CustomNamespace\V1\AddTagRequest;
 use Google\Tagger\CustomNamespace\V1\AddTagResponse;
 use Google\Tagger\CustomNamespace\V1\LabelerGrpcClient;
+use Grpc;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
