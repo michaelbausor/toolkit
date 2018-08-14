@@ -31,43 +31,27 @@ import sys
 logger = logging.getLogger('smoketest')
 logger.setLevel(logging.INFO)
 
-languages = [
-    "java",
-    "python",
-    "ruby"
-    # TODO: add other languages here.
-]
-
-test_apis = {
-    "pubsub" : ("v1", "google/pubsub/artman_pubsub.yaml"),
-    "logging" : ("v2", "google/logging/artman_logging.yaml"),
-    "speech" : ("v1", "google/cloud/speech/artman_speech_v1.yaml"),
-}
-
-
-def generate_clients(root_dir, log, user_config):
+def generate_clients(root_dir, languages, artman_config, log, user_config):
     log_file = _setup_logger(log)
     failure = []
     success = []
     warning = []
     for language in languages:
-        for api_name in test_apis:
-            (api_version, artman_yaml_path) = test_apis[api_name]
-            target = language + "_gapic"
-            # Generate client library for an API and language.
-            if _generate_artifact(artman_yaml_path,
-                                  target,
-                                  root_dir,
-                                  log_file,
-                                  user_config):
-                msg = 'Failed to generate %s of %s.' % (
-                    target, artman_yaml_path)
-                failure.append(msg)
-            else:
-                msg = 'Succeded to generate %s of %s.' % (
-                    target, artman_yaml_path)
-                success.append(msg)
-            logger.info(msg)
+        target = language + "_gapic"
+        # Generate client library for an API and language.
+        if _generate_artifact(artman_config,
+                              target,
+                              root_dir,
+                              log_file,
+                              user_config):
+            msg = 'Failed to generate %s of %s.' % (
+                target, artman_config)
+            failure.append(msg)
+        else:
+            msg = 'Succeded to generate %s of %s.' % (
+                target, artman_config)
+            success.append(msg)
+        logger.info(msg)
     logger.info('================ Library Generation Summary ================')
     if not warning or not failure:
         logger.info('Successes:')
@@ -107,13 +91,9 @@ def _generate_artifact(artman_config, artifact_name, root_dir, log_file, user_co
         return subprocess.call(grpc_pipeline_args, stdout=log, stderr=log)
 
 
-def _test_artifact(test_call, api_name, api_version, log_file):
-    with open(log_file, 'a') as log:
-        return test_call(api_name, api_version, log)
-
-
 def parse_args(*args):
     parser = argparse.ArgumentParser()
+    parser.add_argument('artman_config', help='The artman config relative to the root directory.')
     parser.add_argument(
         '--root-dir',
         # The default value is configured for CircleCI.
@@ -129,6 +109,10 @@ def parse_args(*args):
         # Default to the artman-specified default location.
         default="~/.artman/config.yaml",
         help='Specify where the artman user config lives.')
+    parser.add_argument(
+        '--languages',
+        default='java python ruby',
+        help='Space separated list of languages to generate clients for.')
     return parser.parse_args(args=args)
 
 
@@ -147,4 +131,4 @@ if __name__ == '__main__':
     log = os.path.abspath(flags.log)
     user_config = os.path.abspath(os.path.expanduser(flags.user_config)) if flags.user_config else None
 
-    generate_clients(root_dir, log, user_config)
+    generate_clients(root_dir, flags.languages.split(), flags.artman_config, log, user_config)
