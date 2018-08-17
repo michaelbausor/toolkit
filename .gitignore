@@ -27,5 +27,8 @@ showcase-protos
 *.ipr
 *.iws
 
-# OSX
+# Other
 .DS_Store
+composer.lock
+vendor
+showcase-server
