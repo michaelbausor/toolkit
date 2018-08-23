@@ -13,7 +13,7 @@ return [
 
 @private buildInterface(interface)
     '{@interface.key}' => [
-        @join apiMethod : {@interface.apiMethods}
+        @join apiMethod : interface.apiMethods
             {@buildMethod(apiMethod)}
         @end
     ],
