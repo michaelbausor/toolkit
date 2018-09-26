@@ -70,7 +70,7 @@
 @end
 
 @private renderResourceName(initValue)
-  @if {@initValue.convertToString}
+  @if initValue.convertToString
     {@initValue.resourceTypeName}.format({@argList(initValue.formatArgs)})
   @else
     {@initValue.resourceTypeName}.of({@argList(initValue.formatArgs)})
