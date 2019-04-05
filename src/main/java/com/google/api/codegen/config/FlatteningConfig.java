@@ -105,7 +105,7 @@ public abstract class FlatteningConfig {
         createFlatteningsFromGapicConfig(
             diagCollector, messageConfigs, resourceNameConfigs, methodConfigProto, methodModel);
     if (flatteningConfigsFromGapicConfig == null) {
-      return null;
+      throw new IllegalArgumentException("flatteningConfigsFromGapicConfig");
     }
 
     // Get flattenings from protofile annotations
@@ -113,7 +113,7 @@ public abstract class FlatteningConfig {
         createFlatteningConfigsFromProtoFile(
             diagCollector, messageConfigs, resourceNameConfigs, methodModel, protoParser);
     if (flatteningConfigsFromProtoFile == null) {
-      return null;
+      throw new IllegalArgumentException("flatteningConfigsFromProtoFile");
     }
 
     // Enforce unique flattening configs, in case proto annotations overlaps with configProto
@@ -124,7 +124,9 @@ public abstract class FlatteningConfig {
     flatteningConfigs.putAll(flatteningConfigsFromProtoFile);
     flatteningConfigs.putAll(flatteningConfigsFromGapicConfig);
 
-    return ImmutableList.copyOf(flatteningConfigs.values());
+    throw new IllegalArgumentException("createFlatteningConfigs-fin");
+
+    //return ImmutableList.copyOf(flatteningConfigs.values());
   }
 
   /**
