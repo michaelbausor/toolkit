@@ -14,8 +14,6 @@
  */
 package com.google.api.codegen.config;
 
-import com.google.api.Resource;
-import com.google.api.ResourceSet;
 import com.google.api.codegen.CollectionConfigProto;
 import com.google.api.codegen.CollectionOneofProto;
 import com.google.api.codegen.ConfigProto;
@@ -232,10 +230,8 @@ public abstract class GapicProductConfig implements ProductConfig {
 
     // Get list of fields from proto
     ResourceNameMessageConfigs messageConfigs =
-        // ResourceNameMessageConfigs.createMessageResourceTypesConfig(
-        //    sourceProtos, configProto, defaultPackage, resourceDefs, resourceSetDefs,
-        // protoParser);
-        ResourceNameMessageConfigs.createMessageResourceTypesConfig(configProto, defaultPackage);
+        ResourceNameMessageConfigs.createMessageResourceTypesConfig(
+            sourceProtos, configProto, defaultPackage);
 
     ProtoFile packageProtoFile = sourceProtos.isEmpty() ? null : sourceProtos.get(0);
     ImmutableMap<String, ResourceNameConfig> resourceNameConfigs =
@@ -729,6 +725,7 @@ public abstract class GapicProductConfig implements ProductConfig {
    * Create all the ResourceNameOneofConfig from the protofile and GAPIC config. Apply the GAPIC
    * config resourceNames' language-specific overrides.
    */
+  /*
   @VisibleForTesting
   @Nullable
   static ImmutableMap<String, ResourceNameConfig>
@@ -852,6 +849,7 @@ public abstract class GapicProductConfig implements ProductConfig {
     resourceNameConfigs.putAll(finalResourceOneofNameConfigs);
     return resourceNameConfigs.build();
   }
+  */
 
   /**
    * Create all the ResourceNameOneofConfig from the protofile and GAPIC config, and let the GAPIC
@@ -956,7 +954,7 @@ public abstract class GapicProductConfig implements ProductConfig {
       }
     }
   }
-
+  /*
   // Return map of fully qualified ResourceNameOneofConfig name to its derived config.
   private static ImmutableMap<String, ResourceNameOneofConfig>
       createResourceNameOneofConfigsFromProtoFile(
@@ -1044,6 +1042,7 @@ public abstract class GapicProductConfig implements ProductConfig {
     }
     return ImmutableMap.copyOf(mergedResourceNameConfigs);
   }
+  */
 
   private static void createSingleResourceNameConfigFromGapicConfig(
       DiagCollector diagCollector,
@@ -1058,6 +1057,7 @@ public abstract class GapicProductConfig implements ProductConfig {
         diagCollector, singleResourceNameConfig, "", singleResourceNameConfigsMap);
   }
 
+  /*
   // Construct a new SingleResourceNameConfig from the given Resource, and add the newly
   // created config as a value to the map param, keyed on the package-qualified entity_id.
   private static void createSingleResourceNameConfigFromProtoFile(
@@ -1074,7 +1074,7 @@ public abstract class GapicProductConfig implements ProductConfig {
         singleResourceNameConfig,
         protoParser.getProtoPackage(file) + ".",
         singleResourceNameConfigsMap);
-  }
+  }*/
 
   // Construct a new SingleResourceNameConfig from the given SingleResourceNameConfig,
   // and add the newly created config as a value to the map param,
