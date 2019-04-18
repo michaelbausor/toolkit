@@ -264,7 +264,6 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
             GapicMethodConfig.createGapicMethodConfigFromGapicYaml(
                 diagCollector,
                 language,
-                defaultPackageName,
                 methodConfigProto,
                 method,
                 messageConfigs,
