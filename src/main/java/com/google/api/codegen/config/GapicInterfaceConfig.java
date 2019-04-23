@@ -31,13 +31,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.ImmutableSortedMultiset;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
@@ -127,31 +123,6 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
     ImmutableMap<String, RetryParamsDefinitionProto> retrySettingsDefinition =
         RetryDefinitionsTransformer.createRetrySettingsDefinition(interfaceConfigProto);
 
-    ImmutableMap<String, GapicMethodConfig> methodConfigsMap;
-    List<GapicMethodConfig> methodConfigs;
-    if (retryCodesConfig != null && retrySettingsDefinition != null) {
-      methodConfigsMap =
-          createMethodConfigMap(
-              diagCollector,
-              language,
-              defaultPackageName,
-              methodsToGenerate,
-              messageConfigs,
-              resourceNameConfigs,
-              retryCodesConfig,
-              retrySettingsDefinition.keySet(),
-              protoParser);
-      if (methodConfigsMap == null) {
-        diagCollector.addDiag(
-            Diag.error(SimpleLocation.TOPLEVEL, "Error constructing methodConfigMap"));
-        return null;
-      }
-      methodConfigs = ImmutableList.copyOf(methodConfigsMap.values());
-    } else {
-      methodConfigsMap = ImmutableMap.of();
-      methodConfigs = ImmutableList.of();
-    }
-
     SmokeTestConfig smokeTestConfig =
         createSmokeTestConfig(diagCollector, apiInterface, interfaceConfigProto);
 
@@ -164,8 +135,30 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
       }
     }
 
-    List<SingleResourceNameConfig> resourcesBuilder = new ArrayList<>();
+    String manualDoc =
+        Strings.nullToEmpty(
+                interfaceConfigProto.getLangDoc().get(language.toString().toLowerCase()))
+            .trim();
+
+    ImmutableMap<String, GapicMethodConfig> methodConfigsMap = ImmutableMap.of();
+
+    ImmutableSortedMultiset.Builder<SingleResourceNameConfig> singleResourceNamesBuilder =
+        ImmutableSortedMultiset.orderedBy(Comparator.comparing(ResourceNameConfig::getEntityId));
     if (protoParser.isProtoAnnotationsEnabled()) {
+      if (retryCodesConfig != null && retrySettingsDefinition != null) {
+        methodConfigsMap =
+            createMethodConfigMapFromAnnotations(
+                diagCollector,
+                language,
+                defaultPackageName,
+                methodsToGenerate,
+                messageConfigs,
+                resourceNameConfigs,
+                retryCodesConfig,
+                retrySettingsDefinition.keySet(),
+                protoParser);
+      }
+
       resourceNameConfigs
           .values()
           .stream()
@@ -174,8 +167,18 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
                   r.getResourceNameType() == ResourceNameType.SINGLE
                       && Objects.equals(r.getAssignedProtoFile(), apiInterface.getFile()))
           .map(r -> (SingleResourceNameConfig) r)
-          .forEach(resourcesBuilder::add);
+          .forEach(singleResourceNamesBuilder::add);
     } else {
+      methodConfigsMap =
+          createMethodConfigMapFromGapicYaml(
+              diagCollector,
+              language,
+              methodsToGenerate,
+              messageConfigs,
+              resourceNameConfigs,
+              retryCodesConfig,
+              retrySettingsDefinition.keySet());
+
       for (CollectionConfigProto collectionConfigProto :
           interfaceConfigProto.getCollectionsList()) {
         String entityName = collectionConfigProto.getEntityName();
@@ -189,31 +192,29 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
                   entityName));
           return null;
         }
-        resourcesBuilder.add((SingleResourceNameConfig) resourceName);
+        singleResourceNamesBuilder.add((SingleResourceNameConfig) resourceName);
       }
     }
-    ImmutableList<SingleResourceNameConfig> singleResourceNames =
-        ImmutableList.sortedCopyOf(
-            Comparator.comparing(ResourceNameConfig::getEntityId), resourcesBuilder);
 
-    String manualDoc =
-        Strings.nullToEmpty(
-                interfaceConfigProto.getLangDoc().get(language.toString().toLowerCase()))
-            .trim();
+    if (methodConfigsMap == null) {
+      diagCollector.addDiag(
+          Diag.error(SimpleLocation.TOPLEVEL, "Error constructing methodConfigMap"));
+      return null;
+    }
 
     if (diagCollector.hasErrors()) {
       return null;
     } else {
-      return new AutoValue_GapicInterfaceConfig(
+      return new AutoValue_GapicInterfaceConfig.Builder()
           interfaceNameOverride,
           new ProtoInterfaceModel(apiInterface),
-          methodConfigs,
+          ImmutableList.copyOf(methodConfigsMap.values()),
           smokeTestConfig,
           methodConfigsMap,
           retryCodesConfig,
           retrySettingsDefinition,
           requiredConstructorParams,
-          singleResourceNames,
+          singleResourceNamesBuilder.build().asList(),
           manualDoc);
     }
   }
@@ -232,7 +233,7 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
     }
   }
 
-  private static ImmutableMap<String, GapicMethodConfig> createMethodConfigMap(
+  private static ImmutableMap<String, GapicMethodConfig> createMethodConfigMapFromAnnotations(
       DiagCollector diagCollector,
       TargetLanguage language,
       String defaultPackageName,
@@ -247,32 +248,54 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
     for (Entry<Method, MethodConfigProto> methodEntry : methodsToGenerate.entrySet()) {
       MethodConfigProto methodConfigProto = methodEntry.getValue();
       Method method = methodEntry.getKey();
-      GapicMethodConfig methodConfig;
-      if (protoParser.isProtoAnnotationsEnabled()) {
-        methodConfig =
-            GapicMethodConfig.createGapicMethodConfigFromProto(
-                diagCollector,
-                language,
-                defaultPackageName,
-                methodConfigProto,
-                method,
-                messageConfigs,
-                resourceNameConfigs,
-                retryCodesConfig,
-                retryParamsConfigNames,
-                protoParser);
-      } else {
-        methodConfig =
-            GapicMethodConfig.createGapicMethodConfigFromGapicYaml(
-                diagCollector,
-                language,
-                methodConfigProto,
-                method,
-                messageConfigs,
-                resourceNameConfigs,
-                retryCodesConfig,
-                retryParamsConfigNames);
+      GapicMethodConfig methodConfig =
+          GapicMethodConfig.createGapicMethodConfigFromProto(
+              diagCollector,
+              language,
+              defaultPackageName,
+              methodConfigProto,
+              method,
+              messageConfigs,
+              resourceNameConfigs,
+              retryCodesConfig,
+              retryParamsConfigNames,
+              protoParser);
+      if (methodConfig == null) {
+        continue;
       }
+      methodConfigMapBuilder.put(method.getSimpleName(), methodConfig);
+    }
+
+    if (diagCollector.getErrorCount() > 0) {
+      return null;
+    } else {
+      return ImmutableMap.copyOf(methodConfigMapBuilder);
+    }
+  }
+
+  private static ImmutableMap<String, GapicMethodConfig> createMethodConfigMapFromGapicYaml(
+      DiagCollector diagCollector,
+      TargetLanguage language,
+      Map<Method, MethodConfigProto> methodsToGenerate,
+      ResourceNameMessageConfigs messageConfigs,
+      ImmutableMap<String, ResourceNameConfig> resourceNameConfigs,
+      RetryCodesConfig retryCodesConfig,
+      ImmutableSet<String> retryParamsConfigNames) {
+    Map<String, GapicMethodConfig> methodConfigMapBuilder = new LinkedHashMap<>();
+
+    for (Entry<Method, MethodConfigProto> methodEntry : methodsToGenerate.entrySet()) {
+      MethodConfigProto methodConfigProto = methodEntry.getValue();
+      Method method = methodEntry.getKey();
+      GapicMethodConfig methodConfig =
+          GapicMethodConfig.createGapicMethodConfigFromGapicYaml(
+              diagCollector,
+              language,
+              methodConfigProto,
+              method,
+              messageConfigs,
+              resourceNameConfigs,
+              retryCodesConfig,
+              retryParamsConfigNames);
       if (methodConfig == null) {
         continue;
       }
@@ -392,5 +415,31 @@ public abstract class GapicInterfaceConfig implements InterfaceConfig {
       }
     }
     return false;
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+    public abstract Builder setInterfaceModel(ProtoInterfaceModel val);
+
+    public abstract Builder setMethodConfigs(List<GapicMethodConfig> val);
+
+    @Nullable
+    public abstract Builder setSmokeTestConfig(SmokeTestConfig val);
+
+    abstract Builder setMethodConfigMap(ImmutableMap<String, GapicMethodConfig> val);
+
+    public abstract Builder setRetryCodesConfig(RetryCodesConfig val);
+
+    public abstract Builder setRetrySettingsDefinition(
+        ImmutableMap<String, RetryParamsDefinitionProto> val);
+
+    public abstract Builder setRequiredConstructorParams(ImmutableList<String> val);
+
+    public abstract Builder setSingleResourceNameConfigs(
+        ImmutableList<SingleResourceNameConfig> val);
+
+    public abstract Builder setManualDoc(String val);
+
+    public abstract GapicInterfaceConfig build();
   }
 }

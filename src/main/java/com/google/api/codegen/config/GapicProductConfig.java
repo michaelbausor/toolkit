@@ -198,8 +198,68 @@ public abstract class GapicProductConfig implements ProductConfig {
 
     ProtoFile packageProtoFile = sourceProtos.isEmpty() ? null : sourceProtos.get(0);
 
+    ImmutableMap<String, Interface> protoInterfaces =
+        getInterfacesFromProtoFile(diagCollector, sourceProtos, symbolTable);
+
+    TransportProtocol transportProtocol = TransportProtocol.GRPC;
+
+    String clientPackageName;
+    LanguageSettingsProto settings =
+        configProto.getLanguageSettingsMap().get(language.toString().toLowerCase());
+    if (settings == null) {
+      settings = LanguageSettingsProto.getDefaultInstance();
+
+      if (!Strings.isNullOrEmpty(clientPackage)) {
+        clientPackageName = clientPackage;
+      } else {
+        String basePackageName = Optional.ofNullable(protoPackage).orElse(getPackageName(model));
+        clientPackageName =
+            LanguageSettingsMerger.getFormattedPackageName(language, basePackageName);
+      }
+    } else {
+      clientPackageName = settings.getPackageName();
+    }
+
+    ImmutableList<String> copyrightLines;
+    ImmutableList<String> licenseLines;
+    String configSchemaVersion = null;
+
+    LicenseHeaderUtil licenseHeaderUtil = new LicenseHeaderUtil();
+    try {
+      copyrightLines = licenseHeaderUtil.loadCopyrightLines();
+      licenseLines = licenseHeaderUtil.loadLicenseLines();
+    } catch (Exception e) {
+      model
+          .getDiagReporter()
+          .getDiagCollector()
+          .addDiag(Diag.error(SimpleLocation.TOPLEVEL, "Exception: %s", e.getMessage()));
+      e.printStackTrace(System.err);
+      throw new RuntimeException(e);
+    }
+
+    if (!configProto.equals(ConfigProto.getDefaultInstance())) {
+      configSchemaVersion = configProto.getConfigSchemaVersion();
+      if (Strings.isNullOrEmpty(configSchemaVersion)) {
+        model
+            .getDiagReporter()
+            .getDiagCollector()
+            .addDiag(
+                Diag.error(
+                    SimpleLocation.TOPLEVEL,
+                    "config_schema_version field is required in GAPIC yaml."));
+      }
+    }
+
+    Boolean enableStringFormatFunctionsOverride = null;
+    if (configProto.hasEnableStringFormatFunctionsOverride()) {
+      enableStringFormatFunctionsOverride =
+          configProto.getEnableStringFormatFunctionsOverride().getValue();
+    }
+
     ImmutableMap<String, ResourceNameConfig> resourceNameConfigs;
     ResourceNameMessageConfigs messageConfigs;
+    ImmutableList<GapicInterfaceInput> interfaceInputs;
+    ImmutableMap<String, InterfaceConfig> interfaceConfigMap;
     if (protoParser.isProtoAnnotationsEnabled()) {
       Map<ResourceDescriptor, MessageType> resourceDescriptorMap =
           protoParser.getResourceDescriptorMap(sourceProtos, diagCollector);
@@ -261,7 +321,6 @@ public abstract class GapicProductConfig implements ProductConfig {
           }
         }
       }
-
       resourceNameConfigs =
           createResourceNameConfigsFromAnnotationsAndGapicConfig(
               model,
@@ -271,9 +330,21 @@ public abstract class GapicProductConfig implements ProductConfig {
               language,
               descriptorConfigMap,
               configsWithChildTypeReferences);
-
       messageConfigs =
           ResourceNameMessageConfigs.createFromAnnotations(sourceProtos, resourceReferenceMap);
+      interfaceInputs =
+          createInterfaceInputsWithAnnotationsAndGapicConfig(
+              diagCollector, configProto.getInterfacesList(), protoInterfaces, language);
+      interfaceConfigMap =
+          createInterfaceConfigMapFromAnnotationsAndGapicConfig(
+              diagCollector,
+              interfaceInputs,
+              defaultPackage,
+              settings,
+              messageConfigs,
+              resourceNameConfigs,
+              language,
+              protoParser);
     } else {
       resourceNameConfigs =
           createResourceNameConfigsFromGapicConfigOnly(
@@ -281,40 +352,6 @@ public abstract class GapicProductConfig implements ProductConfig {
       messageConfigs =
           ResourceNameMessageConfigs.createFromGapicConfigOnly(
               sourceProtos, configProto, defaultPackage);
-    }
-
-    if (resourceNameConfigs == null) {
-      return null;
-    }
-
-    TransportProtocol transportProtocol = TransportProtocol.GRPC;
-
-    String clientPackageName;
-    LanguageSettingsProto settings =
-        configProto.getLanguageSettingsMap().get(language.toString().toLowerCase());
-    if (settings == null) {
-      settings = LanguageSettingsProto.getDefaultInstance();
-
-      if (!Strings.isNullOrEmpty(clientPackage)) {
-        clientPackageName = clientPackage;
-      } else {
-        String basePackageName = Optional.ofNullable(protoPackage).orElse(getPackageName(model));
-        clientPackageName =
-            LanguageSettingsMerger.getFormattedPackageName(language, basePackageName);
-      }
-    } else {
-      clientPackageName = settings.getPackageName();
-    }
-
-    ImmutableMap<String, Interface> protoInterfaces =
-        getInterfacesFromProtoFile(diagCollector, sourceProtos, symbolTable);
-
-    ImmutableList<GapicInterfaceInput> interfaceInputs;
-    if (protoParser.isProtoAnnotationsEnabled()) {
-      interfaceInputs =
-          createInterfaceInputsWithAnnotationsAndGapicConfig(
-              diagCollector, configProto.getInterfacesList(), protoInterfaces, language);
-    } else {
       interfaceInputs =
           createInterfaceInputsWithGapicConfigOnly(
               diagCollector,
@@ -322,59 +359,21 @@ public abstract class GapicProductConfig implements ProductConfig {
               protoInterfaces,
               symbolTable,
               language);
-    }
-    if (interfaceInputs == null) {
-      return null;
-    }
-
-    ImmutableMap<String, InterfaceConfig> interfaceConfigMap =
-        createInterfaceConfigMap(
-            diagCollector,
-            interfaceInputs,
-            defaultPackage,
-            settings,
-            messageConfigs,
-            resourceNameConfigs,
-            language,
-            protoParser);
-
-    ImmutableList<String> copyrightLines;
-    ImmutableList<String> licenseLines;
-    String configSchemaVersion = null;
-
-    LicenseHeaderUtil licenseHeaderUtil = new LicenseHeaderUtil();
-    try {
-      copyrightLines = licenseHeaderUtil.loadCopyrightLines();
-      licenseLines = licenseHeaderUtil.loadLicenseLines();
-    } catch (Exception e) {
-      model
-          .getDiagReporter()
-          .getDiagCollector()
-          .addDiag(Diag.error(SimpleLocation.TOPLEVEL, "Exception: %s", e.getMessage()));
-      e.printStackTrace(System.err);
-      throw new RuntimeException(e);
+      interfaceConfigMap =
+          createInterfaceConfigMapFromGapicConfig(
+              diagCollector,
+              interfaceInputs,
+              defaultPackage,
+              settings,
+              messageConfigs,
+              resourceNameConfigs,
+              language);
     }
 
-    if (!configProto.equals(ConfigProto.getDefaultInstance())) {
-      configSchemaVersion = configProto.getConfigSchemaVersion();
-      if (Strings.isNullOrEmpty(configSchemaVersion)) {
-        model
-            .getDiagReporter()
-            .getDiagCollector()
-            .addDiag(
-                Diag.error(
-                    SimpleLocation.TOPLEVEL,
-                    "config_schema_version field is required in GAPIC yaml."));
-      }
-    }
-
-    Boolean enableStringFormatFunctionsOverride = null;
-    if (configProto.hasEnableStringFormatFunctionsOverride()) {
-      enableStringFormatFunctionsOverride =
-          configProto.getEnableStringFormatFunctionsOverride().getValue();
-    }
-
-    if (interfaceConfigMap == null || copyrightLines == null || licenseLines == null) {
+    if (resourceNameConfigs == null
+        || interfaceConfigMap == null
+        || copyrightLines == null
+        || licenseLines == null) {
       return null;
     }
     return new AutoValue_GapicProductConfig(
@@ -679,15 +678,54 @@ public abstract class GapicProductConfig implements ProductConfig {
     return ImmutableMap.copyOf(methodMap);
   }
 
-  private static ImmutableMap<String, InterfaceConfig> createInterfaceConfigMap(
+  private static ImmutableMap<String, InterfaceConfig> createInterfaceConfigMapFromGapicConfig(
       DiagCollector diagCollector,
       List<GapicInterfaceInput> interfaceInputs,
       String defaultPackageName,
       LanguageSettingsProto languageSettings,
       ResourceNameMessageConfigs messageConfigs,
       ImmutableMap<String, ResourceNameConfig> resourceNameConfigs,
-      TargetLanguage language,
-      ProtoParser protoParser) {
+      TargetLanguage language) {
+    // Return value; maps interface names to their InterfaceConfig.
+    ImmutableMap.Builder<String, InterfaceConfig> interfaceConfigMap = ImmutableMap.builder();
+
+    for (GapicInterfaceInput interfaceInput : interfaceInputs) {
+
+      String serviceFullName = interfaceInput.getServiceFullName();
+      String interfaceNameOverride = languageSettings.getInterfaceNamesMap().get(serviceFullName);
+
+      GapicInterfaceConfig interfaceConfig =
+          GapicInterfaceConfig.createInterfaceConfig(
+              diagCollector,
+              language,
+              defaultPackageName,
+              interfaceInput,
+              interfaceNameOverride,
+              messageConfigs,
+              resourceNameConfigs);
+      if (interfaceConfig == null) {
+        continue;
+      }
+      interfaceConfigMap.put(serviceFullName, interfaceConfig);
+    }
+
+    if (diagCollector.getErrorCount() > 0) {
+      return null;
+    } else {
+      return interfaceConfigMap.build();
+    }
+  }
+
+  private static ImmutableMap<String, InterfaceConfig>
+      createInterfaceConfigMapFromAnnotationsAndGapicConfig(
+          DiagCollector diagCollector,
+          List<GapicInterfaceInput> interfaceInputs,
+          String defaultPackageName,
+          LanguageSettingsProto languageSettings,
+          ResourceNameMessageConfigs messageConfigs,
+          ImmutableMap<String, ResourceNameConfig> resourceNameConfigs,
+          TargetLanguage language,
+          ProtoParser protoParser) {
     // Return value; maps interface names to their InterfaceConfig.
     ImmutableMap.Builder<String, InterfaceConfig> interfaceConfigMap = ImmutableMap.builder();
 
